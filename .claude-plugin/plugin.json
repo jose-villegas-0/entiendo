@@ -1,0 +1,11 @@
+{
+  "name": "entiendo",
+  "version": "0.1.0",
+  "description": "Lee toda tu carpeta de trabajo y genera una app HTML que la explica de lo macro a lo micro, para un usuario no técnico.",
+  "author": {
+    "name": "Jose Villegas"
+  },
+  "license": "MIT",
+  "keywords": ["claude-code", "dashboard", "visualization", "ux", "non-technical", "workspace"],
+  "commands": ["./commands/entiendo.md"]
+}

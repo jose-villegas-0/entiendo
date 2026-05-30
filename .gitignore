@@ -1,0 +1,15 @@
+# gstack / herramientas locales
+.gstack/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Logs / temporales
+*.log
+tmp/

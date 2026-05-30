@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>entiendo — tu carpeta como app</title>
+<style>
+  :root{
+    --bg:#0b0c10; --bg2:#101218; --surface:#161922; --surface2:#1d2130; --surface3:#252a3a;
+    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.16);
+    --text:#e9ecf3; --muted:#9aa3b2; --faint:#6b7280;
+    --accent:#7c9cff; --accent2:#a78bfa;
+    --ok:#3ecf8e; --ok-bg:rgba(62,207,142,.13);
+    --mid:#f5c451; --mid-bg:rgba(245,196,81,.13);
+    --bad:#ff6b81; --bad-bg:rgba(255,107,129,.13);
+    --shadow:0 10px 40px rgba(0,0,0,.45);
+    --t:170ms cubic-bezier(.4,0,.2,1);
+    --side:248px;
+  }
+  [data-theme="light"]{
+    --bg:#eef1f7; --bg2:#e6eaf2; --surface:#ffffff; --surface2:#f3f5fa; --surface3:#e9edf5;
+    --border:rgba(10,15,30,.10); --border2:rgba(10,15,30,.18);
+    --text:#161a24; --muted:#566072; --faint:#8b93a3;
+    --accent:#3f5fd8; --accent2:#7c5cff;
+    --ok:#1f9e63; --mid:#b4820a; --bad:#d62848;
+    --ok-bg:rgba(31,158,99,.12); --mid-bg:rgba(180,130,10,.12); --bad-bg:rgba(214,40,72,.10);
+    --shadow:0 10px 40px rgba(20,30,60,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; background:var(--bg); color:var(--text); overflow:hidden;
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+  a{color:var(--accent)}
+  button{font-family:inherit}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid transparent;white-space:nowrap}
+  .pill.ok{color:var(--ok);background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+  .pill.mid{color:var(--mid);background:var(--mid-bg);border-color:color-mix(in srgb,var(--mid) 30%,transparent)}
+  .pill.bad{color:var(--bad);background:var(--bad-bg);border-color:color-mix(in srgb,var(--bad) 30%,transparent)}
+  .tag{font-size:11.5px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:99px}
+
+  /* APP SHELL */
+  .app{display:grid; grid-template-columns:var(--side) 1fr; grid-template-rows:56px 1fr; height:100vh; grid-template-areas:"top top" "side main";}
+  .topbar{grid-area:top; display:flex; align-items:center; gap:14px; padding:0 18px; border-bottom:1px solid var(--border); background:var(--bg2); z-index:30}
+  .brand{font-weight:700; letter-spacing:-.02em; display:flex; align-items:center; gap:8px}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .crumbs{display:flex; align-items:center; gap:7px; color:var(--muted); font-size:13.5px}
+  .crumbs b{color:var(--text)} .crumbs .sep{color:var(--faint)}
+  .crumbs button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13.5px;padding:2px 4px;border-radius:6px}
+  .crumbs button:hover{color:var(--text);background:var(--surface)}
+  .top-right{margin-left:auto; display:flex; align-items:center; gap:10px}
+  .toggle{background:var(--surface);border:1px solid var(--border);color:var(--text);width:36px;height:34px;border-radius:9px;cursor:pointer;font-size:15px;transition:var(--t)}
+  .toggle:hover{border-color:var(--border2)}
+
+  /* SIDEBAR */
+  .sidebar{grid-area:side; background:var(--bg2); border-right:1px solid var(--border); padding:16px 12px; overflow-y:auto; display:flex; flex-direction:column; gap:22px}
+  .nav-group .lbl{font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--faint); font-weight:700; padding:0 10px 8px}
+  .nav-item{display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:10px; cursor:pointer; color:var(--muted); font-size:14px; font-weight:500; transition:var(--t); border:1px solid transparent}
+  .nav-item:hover{background:var(--surface); color:var(--text)}
+  .nav-item.active{background:color-mix(in srgb,var(--accent) 16%,transparent); color:var(--text); border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+  .nav-item .ic{font-size:16px; width:20px; text-align:center}
+  .nav-item .badge{margin-left:auto; font-size:10.5px; font-weight:700; background:var(--surface2); color:var(--muted); padding:1px 7px; border-radius:99px}
+  .prod-item{flex-direction:column; align-items:flex-start; gap:4px}
+  .prod-item .pn{display:flex; align-items:center; gap:8px; width:100%}
+  .prod-item .pg{font-size:11.5px; color:var(--faint); line-height:1.35}
+  .side-foot{margin-top:auto; font-size:11px; color:var(--faint); padding:10px; line-height:1.4}
+
+  /* MAIN */
+  .main{grid-area:main; position:relative; overflow:hidden; background:
+     radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0) 0 0/22px 22px, var(--bg)}
+  .view{position:absolute; inset:0; display:none; flex-direction:column}
+  .view.active{display:flex}
+  .view-scroll{position:absolute; inset:0; overflow-y:auto; padding:26px 30px 90px}
+  .view-head{max-width:900px; margin:0 auto 18px}
+  .view-head h2{font-size:22px; letter-spacing:-.02em; margin:0 0 4px; display:flex; gap:9px; align-items:center}
+  .view-head p{color:var(--muted); font-size:14px; margin:0; max-width:64ch}
+  .wrap900{max-width:900px; margin:0 auto}
+
+  /* CANVAS (map) */
+  .canvas{position:absolute; inset:0; cursor:grab; touch-action:none; overflow:hidden}
+  .canvas.grab{cursor:grabbing}
+  .world{position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform}
+  .edges{position:absolute; left:0; top:0; overflow:visible; pointer-events:none}
+  .edge{fill:none; stroke:var(--border2); stroke-width:2; vector-effect:non-scaling-stroke; transition:stroke .15s}
+  .edge.future{stroke-dasharray:6 6; stroke:var(--faint)}
+  .edge.hot{stroke:var(--accent); stroke-width:3}
+  .gnode{position:absolute; width:230px; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:14px 16px; cursor:grab; box-shadow:0 4px 16px rgba(0,0,0,.18); transition:border-color .15s, box-shadow .15s, opacity .15s}
+  .gnode:hover{border-color:var(--accent)}
+  .gnode.grab{cursor:grabbing}
+  .gnode.sel{border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent), var(--shadow)}
+  .gnode.dim{opacity:.32}
+  .gnode .kick{font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.05em; font-weight:700}
+  .gnode h4{margin:6px 0 5px; font-size:15.5px; letter-spacing:-.01em}
+  .gnode p{margin:0; color:var(--muted); font-size:12.5px; line-height:1.4}
+  .gnode .foot{margin-top:10px; display:flex; gap:7px; align-items:center; flex-wrap:wrap}
+  .gnode .drill{font-size:11px; color:var(--accent); margin-top:9px; font-weight:600}
+
+  .canvas-tools{position:absolute; left:18px; bottom:18px; display:flex; gap:7px; z-index:10}
+  .canvas-tools button{width:38px;height:38px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:17px;box-shadow:var(--shadow);transition:var(--t)}
+  .canvas-tools button:hover{border-color:var(--accent)}
+  .canvas-hint{position:absolute; right:18px; bottom:18px; z-index:10; font-size:11.5px; color:var(--faint);
+    background:var(--surface); border:1px solid var(--border); padding:7px 11px; border-radius:9px}
+  .legend{position:absolute; left:18px; top:16px; z-index:10; display:flex; gap:13px; flex-wrap:wrap; font-size:11.5px; color:var(--muted);
+    background:color-mix(in srgb,var(--bg) 80%,transparent); backdrop-filter:blur(8px); border:1px solid var(--border); padding:7px 12px; border-radius:10px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+
+  /* metrics row */
+  .metrics{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:13px; margin-bottom:8px}
+  .metric{background:linear-gradient(180deg,var(--surface),var(--bg2)); border:1px solid var(--border); border-radius:13px; padding:16px 18px}
+  .metric .n{font-size:27px; font-weight:700; letter-spacing:-.02em; line-height:1}
+  .metric .l{color:var(--muted); font-size:12.5px; margin-top:6px}
+  .metric .sub{color:var(--faint); font-size:11px; margin-top:3px}
+
+  /* BOARD */
+  .swimlane{background:var(--bg2); border:1px solid var(--border); border-radius:13px; padding:13px 15px; margin-bottom:15px}
+  .lane-head{display:flex; align-items:center; gap:10px; margin-bottom:11px}
+  .lane-head .nm{font-weight:700}
+  .cols{display:grid; grid-template-columns:repeat(3,1fr); gap:11px}
+  @media(max-width:720px){.cols{grid-template-columns:1fr}}
+  .col{background:var(--surface); border:1px solid var(--border); border-radius:11px; padding:10px}
+  .col h5{margin:0 0 9px; font-size:12px; display:flex; justify-content:space-between; color:var(--muted)}
+  .col h5 .c{font-weight:700; font-size:10.5px; background:var(--bg2); padding:1px 7px; border-radius:99px}
+  .tcard{background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--faint); border-radius:9px; padding:9px 11px; margin-bottom:8px; font-size:13px}
+  .tcard.ok{border-left-color:var(--ok)} .tcard.mid{border-left-color:var(--mid)} .tcard.bad{border-left-color:var(--bad)}
+  .tcard .src{color:var(--faint); font-size:10.5px; margin-top:5px; font-family:ui-monospace,Menlo,monospace}
+
+  .abtn{background:color-mix(in srgb,var(--accent) 14%,transparent); border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);
+    color:var(--text); padding:6px 11px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; transition:var(--t)}
+  .abtn:hover{background:color-mix(in srgb,var(--accent) 24%,transparent)}
+  .abtn .hint{font-size:9.5px; color:var(--muted); font-weight:500; margin-left:4px}
+  .abtn.mini{margin-top:8px; padding:4px 8px}
+
+  /* RISKS */
+  .risk{background:var(--surface); border:1px solid var(--border); border-radius:13px; margin-bottom:13px; overflow:hidden}
+  .risk-head{display:flex; align-items:center; gap:12px; padding:14px 17px; cursor:pointer}
+  .risk-head:hover{background:var(--surface2)}
+  .risk-head .t{font-weight:600}
+  .risk-head .where{color:var(--faint); font-size:11.5px; margin-top:2px; font-family:ui-monospace,monospace}
+  .risk-head .chev{margin-left:auto; color:var(--faint); transition:var(--t)}
+  .risk.open .chev{transform:rotate(180deg)}
+  .risk-body{display:none; padding:2px 17px 17px}
+  .risk.open .risk-body{display:block}
+  .rb{margin-top:13px} .rb .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--muted);margin-bottom:4px}
+  .rb.why .lbl{color:var(--mid)} .rb.fix .lbl{color:var(--ok)}
+  .steps{margin:6px 0 0; padding-left:19px} .steps li{margin:3px 0; font-size:13px}
+  .links{display:flex; gap:7px; flex-wrap:wrap; margin-top:8px}
+  .links a{font-size:12px; text-decoration:none; background:var(--surface2); border:1px solid var(--border); padding:4px 10px; border-radius:8px}
+  .links a:hover{border-color:var(--accent)}
+
+  /* TOKENS */
+  .bar{height:13px; border-radius:99px; background:var(--surface2); overflow:hidden; display:flex; margin-top:14px; border:1px solid var(--border)}
+  .bar>i{display:block;height:100%}
+  .barleg{display:flex; gap:15px; flex-wrap:wrap; margin-top:11px; font-size:12.5px; color:var(--muted)}
+  .barleg span{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .insight{background:var(--mid-bg); border:1px solid color-mix(in srgb,var(--mid) 30%,transparent); border-radius:11px; padding:13px 15px; margin-top:16px; font-size:13px}
+  .insight b{color:var(--mid)}
+
+  /* DRAWER */
+  .drawer{position:absolute; top:0; right:0; bottom:0; width:min(420px,90%); background:var(--bg2); border-left:1px solid var(--border2);
+    box-shadow:var(--shadow); transform:translateX(105%); transition:transform var(--t); z-index:40; display:flex; flex-direction:column}
+  .drawer.open{transform:none}
+  .drawer-head{display:flex; align-items:flex-start; gap:10px; padding:18px 20px; border-bottom:1px solid var(--border)}
+  .drawer-head .x{margin-left:auto; background:none; border:none; color:var(--faint); font-size:22px; cursor:pointer; line-height:1}
+  .drawer-body{padding:18px 20px; overflow-y:auto}
+  .kv{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; font-size:13.5px; margin-top:6px}
+  .kv dt{color:var(--muted)} .kv dd{margin:0}
+  .blk{margin-top:15px} .blk .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--muted);margin-bottom:6px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px; padding-top:16px; border-top:1px dashed var(--border)}
+
+  /* CHAT DOCK */
+  #dock{position:fixed; right:20px; bottom:20px; z-index:60; width:min(370px,calc(100vw - 40px)); background:var(--surface);
+    border:1px solid var(--border2); border-radius:15px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden; transition:var(--t)}
+  #dock.min{height:50px}
+  .dock-head{display:flex; align-items:center; gap:9px; padding:13px 15px; cursor:pointer; background:var(--surface2); border-bottom:1px solid var(--border)}
+  .dock-head .dico{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:14px;flex:none}
+  .dock-head .dt{font-weight:700; font-size:13.5px}
+  .dock-head .ctx{font-size:10.5px; color:var(--muted); margin-top:1px}
+  .dock-head .mn{margin-left:auto; color:var(--faint); font-size:17px}
+  .dock-body{display:flex; flex-direction:column; height:360px}
+  #dock.min .dock-body{display:none}
+  .chat-log{flex:1; overflow-y:auto; padding:13px 15px; display:flex; flex-direction:column; gap:9px}
+  .msg{font-size:13px; padding:9px 12px; border-radius:11px; max-width:88%}
+  .msg.bot{background:var(--surface2); border:1px solid var(--border); align-self:flex-start}
+  .msg.me{background:color-mix(in srgb,var(--accent) 20%,transparent); align-self:flex-end}
+  .msg b{color:var(--accent)}
+  .chips{display:flex; gap:6px; flex-wrap:wrap; padding:0 15px 9px}
+  .chip{font-size:11.5px; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:5px 10px; border-radius:99px; cursor:pointer; transition:var(--t)}
+  .chip:hover{border-color:var(--accent)}
+  .chat-in{display:flex; gap:8px; padding:10px 13px; border-top:1px solid var(--border)}
+  .chat-in input{flex:1; background:var(--bg2); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:9px 11px; font-size:13px; outline:none}
+  .chat-in input:focus{border-color:var(--accent)}
+  .chat-in button{background:var(--accent); border:none; color:#fff; border-radius:9px; padding:0 14px; cursor:pointer; font-weight:700}
+  .soon{font-size:10.5px; color:var(--faint); text-align:center; padding:0 15px 11px}
+
+  /* MODAL */
+  .ov{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:80; display:none; align-items:center; justify-content:center; padding:20px}
+  .ov.show{display:flex}
+  .modal{background:var(--surface); border:1px solid var(--border2); border-radius:16px; max-width:540px; width:100%; box-shadow:var(--shadow); max-height:85vh; overflow-y:auto}
+  .modal-head{padding:17px 21px; border-bottom:1px solid var(--border); display:flex; gap:10px}
+  .modal-head h3{font-size:17px; margin:0} .modal-head .x{margin-left:auto; cursor:pointer; color:var(--faint); font-size:22px; background:none; border:none}
+  .modal-body{padding:19px 21px}
+  .demo-note{font-size:12px; background:var(--bg2); border:1px dashed var(--border2); border-radius:10px; padding:11px 13px; margin-top:15px; color:var(--muted)}
+
+  @media(max-width:780px){ .app{grid-template-columns:1fr; grid-template-areas:"top" "main"} .sidebar{display:none} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span>entiendo</div>
+    <nav class="crumbs" id="crumbs"></nav>
+    <div class="top-right">
+      <button class="toggle" id="themeBtn" aria-label="Cambiar tema">🌙</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-group">
+      <div class="lbl">Vistas</div>
+      <div class="nav-item active" data-view="mapa"><span class="ic">🗺️</span> Mapa</div>
+      <div class="nav-item" data-view="tablero"><span class="ic">📋</span> Tareas <span class="badge" id="bdgTasks"></span></div>
+      <div class="nav-item" data-view="riesgos"><span class="ic">⚠️</span> Riesgos <span class="badge" id="bdgRisks"></span></div>
+      <div class="nav-item" data-view="costos"><span class="ic">💸</span> Costos</div>
+    </div>
+    <div class="nav-group" id="prodGroup">
+      <div class="lbl">Productos</div>
+    </div>
+    <div class="side-foot" id="sideFoot"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- MAP VIEW -->
+    <section class="view active" data-view="mapa">
+      <div class="legend">
+        <span><span class="pill ok">●</span> Listo</span>
+        <span><span class="pill mid">●</span> A medias</span>
+        <span><span class="pill bad">●</span> Falta</span>
+      </div>
+      <div class="canvas" id="canvas">
+        <div class="world" id="world">
+          <svg class="edges" id="edges"></svg>
+        </div>
+      </div>
+      <div class="canvas-tools">
+        <button id="zin" title="Acercar">＋</button>
+        <button id="zout" title="Alejar">－</button>
+        <button id="zfit" title="Encajar" style="font-size:14px">⤢</button>
+      </div>
+      <div class="canvas-hint">Arrastrá el fondo para mover · rueda para zoom · doble clic en un producto para entrar</div>
+    </section>
+
+    <!-- TABLERO -->
+    <section class="view" data-view="tablero">
+      <div class="view-scroll"><div class="wrap900">
+        <div class="view-head"><h2>📋 Estado de las tareas</h2><p>Cada producto tiene su propio carril — la información no se mezcla. Las tareas salen de los pendientes encontrados en el código y los documentos.</p></div>
+        <div id="board"></div>
+      </div></div>
+    </section>
+
+    <!-- RIESGOS -->
+    <section class="view" data-view="riesgos">
+      <div class="view-scroll"><div class="wrap900">
+        <div class="view-head"><h2>⚠️ Riesgos &amp; buenas prácticas</h2><p>Lo que conviene arreglar bien <em>antes</em> de que crezca el uso. Cada punto te explica qué pasa, por qué importa y cómo se hace bien.</p></div>
+        <div id="risks"></div>
+      </div></div>
+    </section>
+
+    <!-- COSTOS -->
+    <section class="view" data-view="costos">
+      <div class="view-scroll"><div class="wrap900">
+        <div class="view-head"><h2>💸 Cuánto te costó (tokens)</h2><p>Cuánto "pensó" Claude trabajando en esta carpeta. Sale de los registros de tus sesiones.</p></div>
+        <div id="tokenPanel"></div>
+      </div></div>
+    </section>
+
+    <!-- DRAWER -->
+    <aside class="drawer" id="drawer">
+      <div class="drawer-head" id="drawerHead"></div>
+      <div class="drawer-body" id="drawerBody"></div>
+    </aside>
+  </main>
+</div>
+
+<!-- CHAT DOCK -->
+<aside id="dock">
+  <div class="dock-head" id="dockHead">
+    <div class="dico">💬</div>
+    <div><div class="dt">Preguntale a tu carpeta</div><div class="ctx" id="dockCtx">Estás viendo: todo el workspace</div></div>
+    <div class="mn" id="dockMin">▾</div>
+  </div>
+  <div class="dock-body">
+    <div class="chat-log" id="chatLog"></div>
+    <div class="chips" id="chatChips"></div>
+    <div class="chat-in"><input id="chatInput" placeholder="Escribí o tocá una sugerencia…" aria-label="Mensaje"><button id="chatSend">→</button></div>
+    <div class="soon">Respuestas desde lo que ya analicé. La conversación que <b>ejecuta cambios</b> llega en la próxima versión.</div>
+  </div>
+</aside>
+
+<!-- MODAL -->
+<div class="ov" id="ov"><div class="modal">
+  <div class="modal-head"><h3 id="mTitle"></h3><button class="x" id="mClose" aria-label="Cerrar">×</button></div>
+  <div class="modal-body" id="mBody"></div>
+</div></div>
+
+<script>
+/* ================= MODELO ================= */
+const DATA = {
+  nombre:"entiendo",
+  resumen:"Una carpeta con un producto en diseño: una herramienta que lee cualquier carpeta de trabajo y la explica de forma visual.",
+  tokens:{ facturable:750010, input:116157, output:195253, cacheWrite:438600, cacheRead:5213821, sesiones:1, turnos:73, modelo:"Claude Opus 4.8",
+    insight:"El mayor gasto vino de <b>rediseñar el alcance varias veces</b> (panel bidireccional → diferido → versión de lectura → app). Es normal mientras explorás una idea; para ahorrar, conviene fijar el alcance antes de generar. La relectura de caché (5,2 M) es barata y no cuenta como gasto nuevo." },
+  productos:[{
+    id:"entiendo", nombre:"entiendo",
+    goal:"Que cualquiera entienda de un vistazo qué hay en su carpeta: qué productos tiene, cómo funcionan, en qué estado están y dónde están los riesgos.",
+    proposito:"Es un asistente que lee toda tu carpeta de trabajo y dibuja un tablero claro para entenderla sin saber programar.",
+    salud:"aMedias",
+    tecnologias:["HTML/CSS/JS (sin librerías)","Comando de Claude Code","(Próximo) Node + Claude Agent SDK"],
+    decisiones:[
+      "Arrancar con una versión de solo lectura, pero que se sienta como una app navegable.",
+      "Detectar varios productos en una misma carpeta y no mezclar su información.",
+      "Hablarle a un usuario que no programa: cero jerga y enseñar buenas prácticas.",
+      "Un solo archivo que abrís con doble clic, sin instalar nada.",
+      "La versión que ejecuta acciones (Fase 2) usará un puente local + Agent SDK, con confirmación antes de tocar archivos."
+    ],
+    nodos:[
+      { id:"folder", nombre:"Tu carpeta", tipo:"Entrada", estado:"listo", x:60, y:120,
+        queHace:"Los archivos y documentos del proyecto que se leen.", archivos:["./"], tecnologias:["Archivos"], tareas:[] },
+      { id:"cmd", nombre:"El comando /entiendo", tipo:"Herramienta interna", estado:"listo", x:380, y:60,
+        queHace:"Lee la carpeta, la entiende y arma el tablero.", archivos:["~/.claude/commands/entiendo.md"], tecnologias:["Comando de Claude Code"], tareas:[] },
+      { id:"dash", nombre:"El tablero (esta app)", tipo:"Salida", estado:"listo", x:380, y:240,
+        queHace:"La app que estás usando: explica tu carpeta de un vistazo.", archivos:["dashboard.html"], tecnologias:["HTML/CSS/JS"], tareas:[] },
+      { id:"bridge", nombre:"Puente para ‘hacer cosas’", tipo:"Servicio (próximo)", estado:"falta", x:720, y:240,
+        queHace:"Permitirá que al tocar un botón, el asistente arregle el código de verdad y veas el resultado en vivo.",
+        archivos:["(todavía no existe)"], tecnologias:["Node","Claude Agent SDK","WebSocket"],
+        tareas:[ {id:"t1",titulo:"Construir el puente local (Node + Agent SDK)",estado:"falta",origen:"plan: Fase 2"},
+                 {id:"t2",titulo:"Conexión segura: solo localhost + confirmar antes de editar",estado:"falta",origen:"plan: Fase 2"},
+                 {id:"t3",titulo:"Encender los botones ‘Arreglar/Ajustar’ para que ejecuten",estado:"falta",origen:"plan: Fase 2"} ] }
+    ],
+    edges:[
+      {from:"folder",to:"cmd",label:"la lee",kind:"done"},
+      {from:"cmd",to:"dash",label:"genera",kind:"done"},
+      {from:"bridge",to:"dash",label:"en vivo (próximo)",kind:"future"}
+    ]
+  }],
+  herramientasInternas:["El comando /entiendo (vive en ~/.claude/commands)"],
+  riesgos:[
+    { id:"r1", tipo:"seguridad", severidad:"alta", titulo:"El futuro ‘panel que ejecuta’ podría correr código desde el navegador", dondeEsta:"Fase 2 — puente local (todavía no construido)",
+      explicacion:"Cuando el tablero pueda hacer cambios de verdad, abrirá una puerta entre tu navegador y tu computadora. Si esa puerta queda abierta de más, alguien podría usarla para correr cosas sin tu permiso.",
+      why:"Si publicás esto o lo dejás corriendo en una red compartida, una página maliciosa podría pedirle al puente que ejecute acciones. Al crecer el uso, ese descuido se vuelve una puerta de entrada real.",
+      fix:"Atá el puente solo a tu propia computadora (localhost), pedí una clave secreta por sesión, y mostrá siempre una confirmación con el cambio exacto antes de tocar un archivo.",
+      pasos:["Escuchar solo en 127.0.0.1 (no en toda la red)","Generar un token por sesión y exigirlo en cada pedido","Mostrar el ‘diff’ y pedir ‘Aplicar / Rechazar’ antes de editar","Poner un tope de gasto por acción"],
+      links:[{t:"Agent SDK · permisos",u:"https://code.claude.com/docs/en/agent-sdk/permissions"},{t:"OWASP · CSRF",u:"https://owasp.org/www-community/attacks/csrf"}] },
+    { id:"r2", tipo:"deuda", severidad:"media", titulo:"Todo el ‘cerebro’ se regenera a mano cada vez", dondeEsta:"comando /entiendo",
+      explicacion:"Hoy, cada vez que querés actualizar el tablero, hay que correr el comando entero. No se actualiza solo cuando el proyecto avanza.",
+      why:"Si el proyecto cambia seguido, el tablero queda viejo y deja de ser confiable; y regenerarlo entero gasta tokens de más.",
+      fix:"Separar lo barato (contar archivos y pendientes) de lo caro (la explicación). Lo barato puede refrescarse solo; lo caro, solo cuando hace falta.",
+      pasos:["Calcular los datos mecánicos con un script gratis","Regenerar la explicación con IA solo bajo demanda","Mostrar la fecha de ‘última actualización’ por panel"],
+      links:[{t:"Hooks de Claude Code",u:"https://code.claude.com/docs/en/hooks"}] },
+    { id:"r3", tipo:"escala", severidad:"baja", titulo:"Leer los registros de tokens puede ponerse lento", dondeEsta:"panel de costos",
+      explicacion:"Los costos salen de leer los archivos de registro de tus sesiones. Con el tiempo esos archivos se hacen grandes.",
+      why:"Cuando tengas muchas sesiones, leerlos todos en cada apertura puede tardar y trabar la generación del tablero.",
+      fix:"Leer de a poco y guardar un resumen ya calculado, en vez de releer todo cada vez.",
+      pasos:["Procesar los registros en streaming","Guardar totales precalculados","Releer solo lo nuevo desde la última vez"], links:[] }
+  ]
+};
+
+/* ================= ESTADO + HELPERS ================= */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const el=(t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+const EST={listo:{c:"ok",l:"Listo",i:"✅"}, aMedias:{c:"mid",l:"A medias",i:"🟡"}, falta:{c:"bad",l:"Falta",i:"🔴"}};
+const SEV={alta:{c:"bad",i:"🔴"}, media:{c:"mid",i:"🟡"}, baja:{c:"ok",i:"🟢"}};
+const fmt=n=> n>=1e6?(n/1e6).toFixed(1)+"M": n>=1e3?Math.round(n/1e3)+"K":""+n;
+const pill=e=>`<span class="pill ${EST[e].c}">${EST[e].i} ${EST[e].l}</span>`;
+function allTasks(){const o=[]; DATA.productos.forEach(p=>p.nodos.forEach(n=>(n.tareas||[]).forEach(t=>o.push({...t,prod:p.nombre,prodId:p.id})))); return o;}
+const S={ view:"mapa", level:null, selProd:null, selNode:null };
+
+/* ================= NAV / VISTAS ================= */
+function setView(v){
+  S.view=v;
+  $$(".view").forEach(s=>s.classList.toggle("active",s.dataset.view===v));
+  $$(".nav-item[data-view]").forEach(n=>n.classList.toggle("active",n.dataset.view===v));
+  if(v==="mapa") setTimeout(fit,30);
+}
+$$(".nav-item[data-view]").forEach(n=>n.onclick=()=>setView(n.dataset.view));
+
+function renderSidebar(){
+  $("#bdgTasks").textContent = allTasks().filter(t=>t.estado!=="listo").length;
+  $("#bdgRisks").textContent = DATA.riesgos.length;
+  const g=$("#prodGroup");
+  DATA.productos.forEach(p=>{
+    const it=el("div","nav-item prod-item",
+      `<div class="pn"><span class="ic">📦</span><span style="font-weight:600">${p.nombre}</span> ${pill(p.salud)}</div>
+       <div class="pg">${p.goal}</div>`);
+    it.onclick=()=>{ drillInto(p); setView("mapa"); };
+    g.appendChild(it);
+  });
+  $("#sideFoot").innerHTML = `${DATA.productos.length} producto(s) · ${DATA.herramientasInternas.length} herramienta interna<br>Tokens: ${fmt(DATA.tokens.facturable)} · ${DATA.tokens.modelo}`;
+}
+
+/* ================= CANVAS / GRAFO ================= */
+const cv=$("#canvas"), world=$("#world"), edgesSvg=$("#edges");
+let T={x:80,y:60,k:1};
+function applyT(){ world.style.transform=`translate(${T.x}px,${T.y}px) scale(${T.k})`; }
+let curNodes=[], curEdges=[], pos={};
+
+function buildGraph(){
+  edgesSvg.innerHTML=""; [...world.querySelectorAll(".gnode")].forEach(n=>n.remove());
+  if(!S.level){ // workspace level
+    curNodes = DATA.productos.map((p,i)=>({id:"prod:"+p.id, kind:"prod", ref:p, x:120+i*300, y:140, estado:p.salud, nombre:p.nombre, tipo:"Producto", queHace:p.goal}));
+    curEdges = [];
+    setCrumbs(null);
+  } else {
+    const p=S.level;
+    curNodes = p.nodos.map(n=>({id:"node:"+n.id, kind:"node", ref:n, x:n.x, y:n.y, estado:n.estado, nombre:n.nombre, tipo:n.tipo, queHace:n.queHace}));
+    curEdges = (p.edges||[]).map(e=>({from:"node:"+e.from,to:"node:"+e.to,label:e.label,kind:e.kind}));
+    setCrumbs(p);
+  }
+  pos={};
+  curNodes.forEach(n=>{
+    pos[n.id]={x:n.x,y:n.y};
+    const e=EST[n.estado];
+    const node=el("div","gnode"+(S.selNode===n.id?" sel":""),
+      `<div class="kick">${n.tipo}</div><h4>${n.nombre}</h4><p>${n.queHace}</p>
+       <div class="foot">${pill(n.estado)}</div>
+       ${n.kind==="prod"?'<div class="drill">↳ doble clic para entrar</div>':''}`);
+    node.style.left=n.x+"px"; node.style.top=n.y+"px"; node.dataset.id=n.id;
+    node.onclick=ev=>{ if(node._dragged) return; selectGraphNode(n); };
+    node.ondblclick=()=>{ if(n.kind==="prod") drillInto(n.ref); };
+    enableNodeDrag(node,n);
+    enableNodeHover(node,n);
+    world.appendChild(node);
+  });
+  requestAnimationFrame(()=>{ drawEdges(); fit(); });
+}
+function nodeCenter(id){ const e=world.querySelector(`.gnode[data-id="${CSS.escape(id)}"]`); if(!e)return null;
+  return {x:e.offsetLeft+e.offsetWidth/2, y:e.offsetTop+e.offsetHeight/2, w:e.offsetWidth, h:e.offsetHeight}; }
+function drawEdges(){
+  edgesSvg.innerHTML="";
+  curEdges.forEach((ed,i)=>{
+    const a=nodeCenter(ed.from), b=nodeCenter(ed.to); if(!a||!b)return;
+    const x1=a.x, y1=a.y, x2=b.x, y2=b.y, dx=Math.abs(x2-x1)*.5;
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d",`M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`);
+    path.setAttribute("class","edge"+(ed.kind==="future"?" future":"")); path.dataset.from=ed.from; path.dataset.to=ed.to;
+    edgesSvg.appendChild(path);
+    // label
+    if(ed.label){ const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x",(x1+x2)/2); t.setAttribute("y",(y1+y2)/2-6); t.setAttribute("fill","var(--faint)");
+      t.setAttribute("font-size","11"); t.setAttribute("text-anchor","middle"); t.textContent=ed.label; edgesSvg.appendChild(t); }
+  });
+}
+function enableNodeHover(node,n){
+  node.onmouseenter=()=>{
+    const conn=new Set([n.id]);
+    curEdges.forEach(e=>{ if(e.from===n.id)conn.add(e.to); if(e.to===n.id)conn.add(e.from); });
+    world.querySelectorAll(".gnode").forEach(g=>g.classList.toggle("dim",!conn.has(g.dataset.id)));
+    edgesSvg.querySelectorAll(".edge").forEach(p=>p.classList.toggle("hot",p.dataset.from===n.id||p.dataset.to===n.id));
+  };
+  node.onmouseleave=()=>{ world.querySelectorAll(".gnode").forEach(g=>g.classList.remove("dim")); edgesSvg.querySelectorAll(".edge").forEach(p=>p.classList.remove("hot")); };
+}
+function enableNodeDrag(node,n){
+  let sx,sy,ox,oy;
+  node.addEventListener("pointerdown",e=>{
+    e.stopPropagation(); node._dragged=false; node.setPointerCapture(e.pointerId); node.classList.add("grab");
+    sx=e.clientX; sy=e.clientY; ox=node.offsetLeft; oy=node.offsetTop;
+    const mv=ev=>{ const dx=(ev.clientX-sx)/T.k, dy=(ev.clientY-sy)/T.k; if(Math.abs(dx)+Math.abs(dy)>3)node._dragged=true;
+      node.style.left=(ox+dx)+"px"; node.style.top=(oy+dy)+"px"; n.x=ox+dx; n.y=oy+dy; if(n.ref)n.ref.x=n.x,n.ref.y=n.y; drawEdges(); };
+    const up=ev=>{ node.releasePointerCapture(e.pointerId); node.classList.remove("grab"); node.removeEventListener("pointermove",mv); node.removeEventListener("pointerup",up); setTimeout(()=>node._dragged=false,40); };
+    node.addEventListener("pointermove",mv); node.addEventListener("pointerup",up);
+  });
+}
+/* pan */
+let panning=false,psx,psy,pox,poy;
+cv.addEventListener("pointerdown",e=>{ if(e.target.closest(".gnode"))return; panning=true; cv.classList.add("grab"); psx=e.clientX; psy=e.clientY; pox=T.x; poy=T.y; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener("pointermove",e=>{ if(!panning)return; T.x=pox+(e.clientX-psx); T.y=poy+(e.clientY-psy); applyT(); });
+cv.addEventListener("pointerup",e=>{ panning=false; cv.classList.remove("grab"); });
+/* zoom */
+cv.addEventListener("wheel",e=>{ e.preventDefault(); const r=cv.getBoundingClientRect(); const mx=e.clientX-r.left,my=e.clientY-r.top;
+  const wx=(mx-T.x)/T.k, wy=(my-T.y)/T.k; const f=e.deltaY<0?1.12:1/1.12; T.k=Math.min(2.2,Math.max(.35,T.k*f)); T.x=mx-wx*T.k; T.y=my-wy*T.k; applyT(); },{passive:false});
+$("#zin").onclick=()=>zoomBtn(1.18); $("#zout").onclick=()=>zoomBtn(1/1.18);
+function zoomBtn(f){ const r=cv.getBoundingClientRect(),mx=r.width/2,my=r.height/2,wx=(mx-T.x)/T.k,wy=(my-T.y)/T.k; T.k=Math.min(2.2,Math.max(.35,T.k*f)); T.x=mx-wx*T.k; T.y=my-wy*T.k; applyT(); }
+$("#zfit").onclick=fit;
+function fit(){
+  if(!curNodes.length)return; const r=cv.getBoundingClientRect(); if(!r.width)return;
+  let minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
+  curNodes.forEach(n=>{ const e=world.querySelector(`.gnode[data-id="${CSS.escape(n.id)}"]`); const w=e?e.offsetWidth:230,h=e?e.offsetHeight:120;
+    minx=Math.min(minx,n.x); miny=Math.min(miny,n.y); maxx=Math.max(maxx,n.x+w); maxy=Math.max(maxy,n.y+h); });
+  const pad=70, gw=maxx-minx, gh=maxy-miny;
+  const k=Math.min(1.4,(r.width-pad*2)/gw,(r.height-pad*2)/gh); T.k=Math.max(.4,k);
+  T.x=(r.width-gw*T.k)/2-minx*T.k; T.y=(r.height-gh*T.k)/2-miny*T.k; applyT();
+}
+function drillInto(p){ S.level=p; S.selNode=null; S.selProd=p; buildGraph(); }
+function setCrumbs(p){
+  const c=$("#crumbs"); c.innerHTML="";
+  const home=el("button",null,"Workspace"); home.onclick=()=>{ S.level=null; S.selNode=null; buildGraph(); }; c.appendChild(home);
+  if(p){ c.appendChild(el("span","sep","›")); c.appendChild(el("b",null,p.nombre)); }
+}
+
+/* ================= DRAWER (detalle) ================= */
+const drawer=$("#drawer");
+function selectGraphNode(n){
+  S.selNode=n.id;
+  world.querySelectorAll(".gnode").forEach(g=>g.classList.toggle("sel",g.dataset.id===n.id));
+  if(n.kind==="prod") openProduct(n.ref); else openNode(S.level, n.ref);
+}
+function openDrawer(headHTML, bodyHTML, ctx){
+  $("#drawerHead").innerHTML=headHTML+`<button class="x" id="dx" aria-label="Cerrar">×</button>`;
+  $("#drawerBody").innerHTML=bodyHTML; drawer.classList.add("open"); setCtx(ctx);
+  $("#dx").onclick=closeDrawer;
+}
+function closeDrawer(){ drawer.classList.remove("open"); S.selNode=null; world.querySelectorAll(".gnode").forEach(g=>g.classList.remove("sel")); setCtx("Estás viendo: "+(S.level?S.level.nombre:"todo el workspace")); }
+function openProduct(p){
+  openDrawer(
+    `<div><div class="kick" style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;font-weight:700">Producto</div>
+       <h3 style="margin:5px 0 0;font-size:19px">${p.nombre}</h3></div>`,
+    `<p style="color:var(--muted);margin:0 0 8px">${p.proposito}</p>
+     <dl class="kv"><dt>Goal</dt><dd>${p.goal}</dd><dt>Estado</dt><dd>${pill(p.salud)}</dd><dt>Piezas</dt><dd>${p.nodos.length}</dd></dl>
+     <div class="blk"><div class="lbl">Tecnologías</div><div class="tags">${p.tecnologias.map(t=>`<span class="tag">${t}</span>`).join("")}</div></div>
+     <div class="blk"><div class="lbl">Decisiones tomadas</div><ul class="steps">${p.decisiones.map(d=>`<li>${d}</li>`).join("")}</ul></div>
+     <div class="actions">
+       <button class="abtn" onclick="enterFromDrawer('${p.id}')">🔍 Entrar al producto</button>
+       <button class="abtn" onclick="openHowTo('Mejorar ${p.nombre}')">✨ Mejorar esto <span class="hint">te muestro cómo</span></button>
+     </div>`,
+    "Estás viendo: "+p.nombre+" (producto)");
+}
+function enterFromDrawer(id){ const p=DATA.productos.find(x=>x.id===id); closeDrawer(); drillInto(p); }
+function openNode(p,nd){
+  const e=EST[nd.estado];
+  openDrawer(
+    `<div><div class="kick" style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;font-weight:700">${nd.tipo}</div>
+       <h3 style="margin:5px 0 0;font-size:19px">${nd.nombre}</h3><div style="margin-top:6px">${pill(nd.estado)}</div></div>`,
+    `<p style="color:var(--muted);margin:0 0 8px">${nd.queHace}</p>
+     <div class="blk"><div class="lbl">Archivos</div>${(nd.archivos||[]).map(a=>`<code style="font-family:ui-monospace,monospace;font-size:12px">${a}</code>`).join("<br>")}</div>
+     <div class="blk"><div class="lbl">Tecnologías</div><div class="tags">${(nd.tecnologias||[]).map(t=>`<span class="tag">${t}</span>`).join("")}</div></div>
+     ${(nd.tareas&&nd.tareas.length)?`<div class="blk"><div class="lbl">Pendientes de esta pieza</div><ul class="steps">${nd.tareas.map(t=>`<li>${t.titulo} ${pill(t.estado)}</li>`).join("")}</ul></div>`:""}
+     <div class="actions">
+       <button class="abtn" onclick="openHowTo('Trabajar en ${nd.nombre}')">🔧 Ajustar esto <span class="hint">te muestro cómo</span></button>
+       <button class="abtn" onclick="askChat('Explicame ${nd.nombre}')">💬 Explicámelo</button>
+     </div>`,
+    "Estás viendo: "+p.nombre+" › "+nd.nombre);
+}
+
+/* ================= TABLERO ================= */
+function renderBoard(){
+  const wrap=$("#board"); wrap.innerHTML="";
+  DATA.productos.forEach(p=>{
+    const tasks=[]; p.nodos.forEach(n=>(n.tareas||[]).forEach(t=>tasks.push(t)));
+    const lane=el("div","swimlane");
+    lane.appendChild(el("div","lane-head",`<span class="nm">${p.nombre}</span> ${pill(p.salud)} <span class="tag">${tasks.length} tarea(s)</span>`));
+    const cols=el("div","cols");
+    [["falta","Falta"],["aMedias","A medias"],["listo","Listo"]].forEach(([k,label])=>{
+      const list=tasks.filter(t=>t.estado===k);
+      const col=el("div","col",`<h5>${EST[k].i} ${label} <span class="c">${list.length}</span></h5>`);
+      if(!list.length) col.appendChild(el("p",null,`<span style="color:var(--faint);font-size:12px">—</span>`));
+      list.forEach(t=>{ const card=el("div","tcard "+EST[k].c,`${t.titulo}<div class="src">${t.origen||""}</div>`);
+        if(k!=="listo"){ const b=el("button","abtn mini",`🔧 Arreglar esto <span class="hint">te muestro cómo</span>`); b.onclick=()=>openHowTo(t.titulo); card.appendChild(b); }
+        col.appendChild(card); });
+      cols.appendChild(col);
+    });
+    lane.appendChild(cols); wrap.appendChild(lane);
+  });
+}
+
+/* ================= RIESGOS ================= */
+function renderRisks(){
+  const wrap=$("#risks"); wrap.innerHTML="";
+  [...DATA.riesgos].sort((a,b)=>({alta:0,media:1,baja:2}[a.severidad]-{alta:0,media:1,baja:2}[b.severidad])).forEach(r=>{
+    const s=SEV[r.severidad]; const card=el("div","risk");
+    const head=el("div","risk-head",`<span style="font-size:18px">${s.i}</span><div><div class="t">${r.titulo}</div><div class="where">📍 ${r.dondeEsta}</div></div><span class="chev">▾</span>`);
+    head.onclick=()=>card.classList.toggle("open"); card.appendChild(head);
+    card.appendChild(el("div","risk-body",
+      `<div class="rb"><div class="lbl">Qué pasa</div>${r.explicacion}</div>
+       <div class="rb why"><div class="lbl">Por qué importa (al crecer)</div>${r.why}</div>
+       <div class="rb fix"><div class="lbl">Cómo se hace bien</div>${r.fix}
+         <ul class="steps">${r.pasos.map(p=>`<li>${p}</li>`).join("")}</ul>
+         ${r.links.length?`<div class="links">${r.links.map(l=>`<a href="${l.u}" target="_blank" rel="noopener">🔗 ${l.t}</a>`).join("")}</div>`:""}</div>`));
+    wrap.appendChild(card);
+  });
+}
+
+/* ================= TOKENS ================= */
+function renderTokens(){
+  const t=DATA.tokens, parts=[["Entrada",t.input,"var(--accent)"],["Salida",t.output,"var(--accent2)"],["Memoria nueva",t.cacheWrite,"var(--mid)"]], tot=parts.reduce((a,[,v])=>a+v,0);
+  $("#tokenPanel").innerHTML=`
+    <div class="metrics">
+      <div class="metric"><div class="n">${fmt(t.facturable)}</div><div class="l">Tokens facturables</div><div class="sub">lo que se procesó de nuevo</div></div>
+      <div class="metric"><div class="n">${fmt(t.cacheRead)}</div><div class="l">Releído de memoria</div><div class="sub">barato — no es gasto nuevo</div></div>
+      <div class="metric"><div class="n">${t.turnos}</div><div class="l">Intercambios</div><div class="sub">${t.sesiones} sesión</div></div>
+    </div>
+    <div class="bar">${parts.map(([,v,c])=>`<i style="width:${(v/tot*100).toFixed(1)}%;background:${c}"></i>`).join("")}</div>
+    <div class="barleg">${parts.map(([l,v,c])=>`<span><span class="swatch" style="background:${c}"></span>${l}: <b style="color:var(--text)">${fmt(v)}</b></span>`).join("")}</div>
+    <div class="insight">💡 <b>Dónde se fue el gasto:</b> ${t.insight}</div>`;
+}
+
+/* ================= MODAL ================= */
+function openHowTo(titulo){
+  $("#mTitle").textContent="Te muestro cómo: "+titulo;
+  $("#mBody").innerHTML=`<p>En la versión que ejecuta cambios, esta acción le pediría a Claude trabajar sobre <b>${titulo}</b> y te mostraría el cambio exacto antes de aplicarlo.</p>
+    <p style="color:var(--muted)">Por ahora el botón ya tiene su lugar en la app. Cuando se encienda la Fase 2, hará el cambio de verdad — siempre con tu confirmación.</p>
+    <div class="demo-note">🔒 <b>Versión de lectura.</b> Hoy te muestro la buena práctica y los pasos; la acción que <b>hace el cambio</b> llega en la próxima versión.</div>`;
+  $("#ov").classList.add("show");
+}
+window.openHowTo=openHowTo; window.enterFromDrawer=enterFromDrawer; window.askChat=askChat;
+$("#mClose").onclick=()=>$("#ov").classList.remove("show");
+$("#ov").onclick=e=>{ if(e.target===$("#ov"))$("#ov").classList.remove("show"); };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){$("#ov").classList.remove("show"); closeDrawer();} });
+
+/* ================= CHAT ================= */
+function setCtx(t){ $("#dockCtx").textContent=t; }
+function addMsg(w,h){ const m=el("div","msg "+w,h); $("#chatLog").appendChild(m); $("#chatLog").scrollTop=1e9; }
+const CHIPS=["¿Dónde están mis riesgos?","¿Qué falta por hacer?","¿Qué me consumió tokens?","¿Qué es este proyecto?"];
+function renderChips(){ const c=$("#chatChips"); c.innerHTML=""; CHIPS.forEach(q=>{ const b=el("button","chip",q); b.onclick=()=>askChat(q); c.appendChild(b); }); }
+function answer(q){ const Q=q.toLowerCase();
+  if(/riesgo|segur|peligro/.test(Q)){ const a=DATA.riesgos.filter(r=>r.severidad==="alta"); return `Hay <b>${DATA.riesgos.length} riesgo(s)</b>${a.length?`, ${a.length} de prioridad alta`:""}. El más importante: “${(a[0]||DATA.riesgos[0]).titulo}”. Abrí la vista <b>Riesgos</b> (barra izquierda) — cada uno explica cómo se arregla bien.`; }
+  if(/falta|pendiente|hacer|todo/.test(Q)){ const t=allTasks().filter(x=>x.estado!=="listo"); return `Hay <b>${t.length} pendiente(s)</b>: ${t.map(x=>"“"+x.titulo+"”").join(", ")||"ninguno"}. Todo es de la <b>Fase 2</b>. Mirá la vista <b>Tareas</b>.`; }
+  if(/token|cost|gast|caro|plata/.test(Q)){ return `Esta carpeta usó <b>${fmt(DATA.tokens.facturable)} tokens facturables</b> en ${DATA.tokens.sesiones} sesión. ${DATA.tokens.insight} Mirá la vista <b>Costos</b>.`; }
+  if(/qué es|que es|proyecto|sirve|hace/.test(Q)){ return `${DATA.resumen} El goal: <i>${DATA.productos[0].goal}</i>`; }
+  return `Puedo contarte de tus <b>riesgos</b>, lo que <b>falta</b>, el <b>costo en tokens</b> o <b>qué es</b> el proyecto. Tocá una sugerencia 👇`;
+}
+function askChat(q){ if($("#dock").classList.contains("min"))$("#dock").classList.remove("min"); addMsg("me",q); setTimeout(()=>addMsg("bot",answer(q)),170); }
+$("#chatSend").onclick=()=>{ const v=$("#chatInput").value.trim(); if(v){askChat(v); $("#chatInput").value="";} };
+$("#chatInput").addEventListener("keydown",e=>{ if(e.key==="Enter")$("#chatSend").click(); });
+$("#dockHead").onclick=e=>{ if(e.target.id!=="chatInput")$("#dock").classList.toggle("min"); };
+
+/* ================= THEME ================= */
+const tb=$("#themeBtn");
+function applyTheme(t){ document.documentElement.setAttribute("data-theme",t); tb.textContent=t==="dark"?"🌙":"☀️"; try{localStorage.setItem("entiendo-theme",t)}catch(e){} }
+tb.onclick=()=>applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
+try{const sv=localStorage.getItem("entiendo-theme"); if(sv)applyTheme(sv);}catch(e){}
+
+/* ================= INIT ================= */
+renderSidebar(); renderBoard(); renderRisks(); renderTokens(); renderChips();
+// Si hay un solo producto, entrar directo a su grafo (más interesante que un nodo solo)
+if(DATA.productos.length===1){ S.level=DATA.productos[0]; S.selProd=DATA.productos[0]; }
+buildGraph();
+addMsg("bot","¡Hola! Soy tu guía. Navegá el mapa (arrastrá, zoom, doble clic) o tocá una sugerencia 👇");
+window.addEventListener("resize",()=>{ if(S.view==="mapa")fit(); });
+</script>
+</body>
+</html>
