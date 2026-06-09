@@ -190,15 +190,26 @@ el modelo del workspace como un objeto JS al inicio y renderizá de forma declar
 - Drawer derecho con `transform:translateX(105%)` ↔ `0`. Chat dock `position:fixed`.
 - Respetar `prefers-reduced-motion`; foco visible; navegable por teclado; contraste AA.
 
-### Sistema visual (top-of-the-line, no genérico)
-- **Dark mode por defecto** con toggle a light que persista (localStorage).
-- Paleta: fondo profundo neutro (no negro puro, ej. `#0e0f13`), superficies elevadas con borde
-  translúcido y sutil gradiente, 1 acento con carácter. Evitá el look "bootstrap genérico".
-- **Colores semánticos consistentes** (siempre color + ícono + texto, nunca solo color):
-  verde = listo, ámbar = a medias, rojo/coral = falta/riesgo alto.
-- **Tipografía**: system font stack moderno, jerarquía marcada (hero con `clamp()`, cuerpo ≥16px,
-  interlineado 1.5–1.7, máx ~70 caracteres por línea).
-- **Espaciado**: escala 4/8px, aire generoso, cards con padding amplio, radios 12–16px, sombras suaves.
+### Sistema visual (entiendo design system v1 — claridad radical, no glassmorphism)
+- **Dark mode por defecto** con toggle a light que persista (localStorage). Ambos modos cumplen AA.
+- **Minimalismo deliberado**: superficies planas, sin gradientes decorativos, sin `backdrop-filter`,
+  sin glow ni sombras pesadas. Las sombras son sutiles y solo en overlays (drawer, dock, modal, popover).
+- **Paleta (azul profesional)** — tokens:
+  - Dark (azul casi negro, tinte slate): `--bg #070B16`, `--bg2 #0B1020`, `--surface #11182B`,
+    `--surface2 #1C2740`, `--surface3 #2A3A5C`, `--text #F8FAFC`, `--muted #94A3B8`,
+    `--faint #64748B`, `--accent #60A5FA`, borde `rgba(148,163,184,.14)`.
+  - Light: `--bg #F9FAFB`, `--surface #FFFFFF`, `--surface2 #F3F4F6`, `--text #111827`,
+    `--muted #4B5563`, `--faint #9CA3AF`, `--accent #3B82F6`, borde `#E5E7EB`.
+- **Colores semánticos** (siempre color + ícono + texto, nunca solo color):
+  `success` verde = listo, `warning` ámbar = a medias, `error` rojo = falta/riesgo alto, `info` cian.
+  Dark: `#34D399 / #FBBF24 / #F87171 / #22D3EE` · Light: `#10B981 / #F59E0B / #EF4444 / #06B6D4`.
+- **Tipografía**: **Inter** (UI) + **IBM Plex Mono** (código, rutas, métricas). Escala:
+  Display 32–40px, Heading 18–24px, Body 14–16px, Label 12px. Weights 400/500/600, 700 solo énfasis crítico.
+- **Spacing**: escala 4/8/12/16/24/32/48px. Cards padding 20px, panel lateral 16px, navbar 56px.
+- **Radius**: `sm 4px` (inputs/botones chicos), `md 8px` (cards/modales), `lg 12px` (paneles), `full` (badges).
+- **Sombras** (sutiles): `sm 0 1px 2px`, `lg 0 10px 15px + 0 4px 6px` — alpha .3–.4 en dark, .05–.1 en light.
+- **Transiciones** 150ms (estados) a 300ms (cambios de vista), easing `cubic-bezier(.4,0,.2,1)`.
+- Cargar Inter + IBM Plex Mono vía Google Fonts con **fallback a system stack** para que funcione offline.
 
 ### Interacción y movimiento (IxD)
 - Aparición escalonada de cards al cargar (fade+slide, stagger ~40ms), respetando `prefers-reduced-motion`.
