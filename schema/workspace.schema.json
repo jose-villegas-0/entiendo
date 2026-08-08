@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jose-villegas-0/entiendo/schema/workspace.schema.json",
+  "title": "entiendo Workspace Model",
+  "description": "Contrato del objeto DATA embebido en dashboard.html. Solo este JSON lo genera la IA; el shell (template/) es fijo.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["nombre", "resumen", "productos", "herramientasInternas", "riesgos", "tokens"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Versión del contrato DATA (semver). Opcional; default implícito 1.0.0.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "nombre": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nombre del workspace (carpeta / monorepo)."
+    },
+    "resumen": {
+      "type": "string",
+      "minLength": 1,
+      "description": "1–2 frases en lenguaje no técnico: qué es este workspace."
+    },
+    "productos": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/producto" }
+    },
+    "herramientasInternas": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Comandos, skills, agentes, scripts internos (no son el producto)."
+    },
+    "riesgos": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/riesgo" }
+    },
+    "tokens": {
+      "oneOf": [
+        { "$ref": "#/$defs/tokens" },
+        { "type": "null" }
+      ],
+      "description": "Consumo de tokens. null o objeto vacío-amigable si no hay logs."
+    }
+  },
+  "$defs": {
+    "estado": {
+      "type": "string",
+      "enum": ["listo", "aMedias", "falta"]
+    },
+    "severidad": {
+      "type": "string",
+      "enum": ["alta", "media", "baja"]
+    },
+    "tipoRiesgo": {
+      "type": "string",
+      "enum": ["seguridad", "escala", "codigoMuerto", "deuda"]
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["t", "u"],
+      "properties": {
+        "t": { "type": "string", "minLength": 1 },
+        "u": { "type": "string", "minLength": 1 }
+      }
+    },
+    "tarea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "titulo", "estado"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "titulo": { "type": "string", "minLength": 1 },
+        "estado": { "$ref": "#/$defs/estado" },
+        "origen": {
+          "type": "string",
+          "description": "archivo:línea o fuente de la tarea"
+        },
+        "productoId": {
+          "type": "string",
+          "description": "Opcional si la tarea vive colgada del nodo; el producto se infiere del padre."
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["done", "future"],
+          "default": "done"
+        }
+      }
+    },
+    "nodo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "nombre", "queHace", "estado", "x", "y"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "nombre": { "type": "string", "minLength": 1 },
+        "tipo": { "type": "string" },
+        "queHace": {
+          "type": "string",
+          "minLength": 1,
+          "description": "1 frase humana, sin jerga cruda."
+        },
+        "estado": { "$ref": "#/$defs/estado" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "archivos": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tecnologias": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tareas": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tarea" }
+        }
+      }
+    },
+    "producto": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "nombre", "goal", "proposito", "salud", "nodos"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "nombre": { "type": "string", "minLength": 1 },
+        "goal": {
+          "type": "string",
+          "minLength": 1,
+          "description": "1 frase como la diría el dueño a un amigo."
+        },
+        "proposito": { "type": "string", "minLength": 1 },
+        "salud": { "$ref": "#/$defs/estado" },
+        "tecnologias": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "decisiones": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "nodos": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nodo" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/edge" }
+        }
+      }
+    },
+    "riesgo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "tipo",
+        "severidad",
+        "titulo",
+        "dondeEsta",
+        "explicacion",
+        "why",
+        "fix",
+        "pasos"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "tipo": { "$ref": "#/$defs/tipoRiesgo" },
+        "severidad": { "$ref": "#/$defs/severidad" },
+        "titulo": { "type": "string", "minLength": 1 },
+        "dondeEsta": { "type": "string", "minLength": 1 },
+        "explicacion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Qué pasa (lenguaje simple)."
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Por qué importa al crecer."
+        },
+        "fix": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Cómo se hace bien."
+        },
+        "pasos": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "links": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/link" },
+          "default": []
+        }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["facturable"],
+      "properties": {
+        "facturable": { "type": "number", "minimum": 0 },
+        "input": { "type": "number", "minimum": 0 },
+        "output": { "type": "number", "minimum": 0 },
+        "cacheWrite": { "type": "number", "minimum": 0 },
+        "cacheRead": { "type": "number", "minimum": 0 },
+        "sesiones": { "type": "number", "minimum": 0 },
+        "turnos": { "type": "number", "minimum": 0 },
+        "modelo": { "type": "string" },
+        "insight": {
+          "type": "string",
+          "description": "Narrativa corta: dónde se fue el gasto. Puede incluir HTML simple (<b>)."
+        },
+        "porProducto": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "malasDecisiones": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "disponible": {
+          "type": "boolean",
+          "description": "false = no hay logs; el panel muestra estado vacío amable."
+        }
+      }
+    }
+  }
+}

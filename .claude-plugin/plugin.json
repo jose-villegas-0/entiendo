@@ -1,7 +1,7 @@
 {
   "name": "entiendo",
-  "version": "0.1.0",
-  "description": "Lee toda tu carpeta de trabajo y genera una app HTML que la explica de lo macro a lo micro, para un usuario no técnico.",
+  "version": "0.2.0",
+  "description": "Lee toda tu carpeta de trabajo, genera un modelo DATA validado y ensambla una app HTML (shell fijo) que la explica de lo macro a lo micro, para un usuario no técnico.",
   "author": {
     "name": "Jose Villegas"
   },

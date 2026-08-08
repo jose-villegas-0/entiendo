@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "1.0.0",
+  "nombre": "demo-minimal",
+  "resumen": "Un workspace de prueba con un solo producto, para validar el contrato DATA.",
+  "productos": [
+    {
+      "id": "app",
+      "nombre": "App demo",
+      "goal": "Mostrar un tablero mínimo que un no técnico entienda en tres segundos.",
+      "proposito": "Sirve como ejemplo chico para probar que el generador y el validador funcionan.",
+      "salud": "aMedias",
+      "tecnologias": ["HTML", "JSON"],
+      "decisiones": ["Un solo producto en el fixture para mantenerlo simple."],
+      "nodos": [
+        {
+          "id": "entrada",
+          "nombre": "Datos de entrada",
+          "tipo": "Entrada",
+          "queHace": "Recibe la información que el usuario ya tiene en su carpeta.",
+          "estado": "listo",
+          "x": 40,
+          "y": 120,
+          "archivos": ["README.md"],
+          "tecnologias": ["Archivos"],
+          "tareas": []
+        },
+        {
+          "id": "proceso",
+          "nombre": "Procesar",
+          "tipo": "Paso",
+          "queHace": "Ordena y explica lo que encontró, en lenguaje simple.",
+          "estado": "aMedias",
+          "x": 360,
+          "y": 120,
+          "archivos": ["src/"],
+          "tecnologias": ["Lógica"],
+          "tareas": [
+            {
+              "id": "t-tests",
+              "titulo": "Agregar una prueba mínima del flujo",
+              "estado": "falta",
+              "origen": "fixtures/minimal.workspace.json"
+            }
+          ]
+        },
+        {
+          "id": "salida",
+          "nombre": "Tablero",
+          "tipo": "Salida",
+          "queHace": "Muestra el resultado en una app que se navega, no en un informe largo.",
+          "estado": "listo",
+          "x": 680,
+          "y": 120,
+          "archivos": ["dashboard.html"],
+          "tecnologias": ["HTML"],
+          "tareas": []
+        }
+      ],
+      "edges": [
+        { "from": "entrada", "to": "proceso", "label": "lee", "kind": "done" },
+        { "from": "proceso", "to": "salida", "label": "explica", "kind": "done" }
+      ]
+    }
+  ],
+  "herramientasInternas": ["Validador de contrato (scripts/validate.mjs)"],
+  "riesgos": [
+    {
+      "id": "r-demo",
+      "tipo": "deuda",
+      "severidad": "baja",
+      "titulo": "Este fixture no es un proyecto real",
+      "dondeEsta": "fixtures/minimal.workspace.json",
+      "explicacion": "Solo existe para probar que el contrato de datos y el armado del tablero funcionan.",
+      "why": "Si alguien lo confunde con un producto real, puede tomar decisiones sobre datos de mentira.",
+      "fix": "Usarlo solo en pruebas y documentar que es un ejemplo.",
+      "pasos": [
+        "Correr node scripts/validate.mjs fixtures/minimal.workspace.json",
+        "Armar un HTML de prueba con scripts/assemble.mjs si hace falta"
+      ],
+      "links": []
+    }
+  ],
+  "tokens": null
+}

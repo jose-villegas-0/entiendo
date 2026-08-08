@@ -2,16 +2,26 @@
 
 ## v1 — Lectura (actual)
 
-Una **app HTML autocontenida** que lee toda la carpeta y la explica de lo macro a lo micro,
-para un usuario no técnico.
+Una **app HTML** que lee toda la carpeta y la explica de lo macro a lo micro, para un usuario no técnico.
+
+### Arquitectura template + DATA (v1.1)
+
+```
+dashboard.html  =  template/shell.html  (UI fija)  +  DATA JSON  (por carpeta)
+```
+
+- El comando **solo genera DATA** conforme a `schema/workspace.schema.json`.
+- `scripts/validate.mjs` y `scripts/assemble.mjs` garantizan contrato y ensamble reproducible.
+- La IA **no reescribe** CSS/JS del shell en cada corrida → dashboards consistentes y menos tokens.
+
+### Capacidades de lectura
 
 - Detección de **múltiples productos** + herramientas internas, sin mezclar información.
 - **Lienzo de nodos interactivo** (zoom, arrastre, pan) — macro→micro entrando a cada producto.
 - Vistas: 🗺️ Mapa · 📋 Tareas (Trello, carril por producto) · ⚠️ Riesgos & buenas prácticas · 💸 Costos (tokens).
 - Drawer de detalle, chat dock cross-vista, dark mode, accesibilidad AA.
 - **Capa de acción educativa:** los botones "Arreglar / Ajustar / Explicar" y el chat
-  **muestran la buena práctica** (qué pasa, por qué importa al crecer, cómo se hace bien, links).
-  Todavía **no ejecutan** — pero la UX ya está diseñada para que se "enciendan" sin rediseño.
+  **muestran la buena práctica**. Todavía **no ejecutan**.
 
 ## Fase 2 — Bidireccional
 

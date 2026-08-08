@@ -1,43 +1,68 @@
 # Contribuir a entiendo
 
-¡Gracias por querer colaborar! Este proyecto busca que **cualquiera** entienda su carpeta de trabajo, así que la barra de calidad es: *¿lo entendería una persona que no programa?*
+¡Gracias por querer colaborar! La barra de calidad es: *¿lo entendería una persona que no programa?*
 
 ## Cómo está armado
 
-- `commands/entiendo.md` — **el corazón del proyecto.** Es el comando de Claude Code: las instrucciones que, al ejecutarse, leen la carpeta y generan la app. La mayor parte del trabajo vive acá.
-- `examples/dashboard.html` — un ejemplo de app generada (sirve de referencia visual).
-- `docs/roadmap.md` — la visión y el diseño de la Fase 2 (bidireccional).
-- `.claude-plugin/plugin.json` — manifest para instalar como plugin.
+```
+dashboard.html  =  template/shell.html  +  DATA (JSON)
+```
 
-> No hay build ni dependencias: la app generada es un único HTML con todo embebido.
+| Path | Qué es |
+|------|--------|
+| `commands/entiendo.md` | Corazón del producto: instrucciones de `/entiendo` (explorar → DATA → validar → ensamblar). |
+| `template/shell.html` | **Shell fijo** de la app (no regenerar por proyecto). Marcador `/*__ENTIENDO_DATA__*/`. |
+| `schema/workspace.schema.json` | Contrato del modelo DATA. Ver también `schema/README.md`. |
+| `scripts/validate.mjs` | Validación de negocio del DATA. |
+| `scripts/assemble.mjs` | `shell + data.json → dashboard.html`. |
+| `examples/data/*.json` | Modelos de ejemplo (fuente de verdad del demo). |
+| `examples/dashboard.html` | Demo ensamblado — **no editar a mano**; reensamblar. |
+| `fixtures/` | JSON mínimos para smoke tests. |
+| `docs/roadmap.md` | Fase 2 (bidireccional). |
+| `.claude-plugin/plugin.json` | Manifest del plugin. |
 
-## Cómo probar un cambio
+## Flujo de trabajo al tocar la UI
 
-1. Copiá tu versión del comando a `~/.claude/commands/entiendo.md`.
-2. Parate en una carpeta de prueba (idealmente con **2+ productos** + alguna herramienta interna).
-3. Corré `/entiendo` en Claude Code y abrí el `dashboard.html` generado.
-4. Verificá: que detecte y **separe** los productos, que el lienzo tenga pan/zoom/arrastre, que los riesgos traigan su buena práctica, y que **no haya jerga sin traducir**.
+1. Editá `template/shell.html` (o el DATA de ejemplo en `examples/data/`).
+2. Validá y reensamblá:
 
-## Principios que cuidamos (no negociables)
+```bash
+node scripts/validate.mjs examples/data/entiendo.workspace.json fixtures/minimal.workspace.json
+node scripts/assemble.mjs examples/data/entiendo.workspace.json -o examples/dashboard.html
+```
 
-- **App, no reporte.** Se navega; no se scrollea una página de secciones.
-- **Usuario no técnico.** Cero jerga; cada término técnico se traduce a su función real.
-- **Enseñar, no asustar.** Todo riesgo grave viene con "cómo se hace bien" + links.
-- **Separación por producto.** Nunca mezclar tareas/riesgos/costos entre productos.
-- **Un solo archivo, sin dependencias.** Debe abrir con doble clic, offline.
-- **Accesibilidad AA** y `prefers-reduced-motion` respetado.
+3. Abrí `examples/dashboard.html` en el browser.
+4. Si cambiaste el contrato, actualizá `schema/`, `scripts/validate.mjs`, el comando y un fixture.
+
+## Cómo probar un cambio del comando
+
+1. Asegurate de tener el repo (shell + schema), no solo el `.md`.
+2. Copiá `commands/entiendo.md` a `~/.claude/commands/entiendo.md` si hace falta.
+3. En una carpeta de prueba (ideal **2+ productos** + herramientas internas), corré `/entiendo`.
+4. Verificá: separación por producto, mapa pan/zoom, riesgos con buena práctica, sin jerga, y que el HTML siga siendo el shell (no un layout inventado).
+
+## Principios (no negociables)
+
+- **App, no reporte.** Se navega.
+- **Usuario no técnico.** Cero jerga sin traducir.
+- **Enseñar, no asustar.** Riesgo grave = qué pasa / por qué / cómo / links.
+- **Separación por producto.** Nunca mezclar tareas/riesgos/costos.
+- **Shell fijo + DATA validado.** La IA no reescribe la UI en cada corrida.
+- **Accesibilidad AA** y `prefers-reduced-motion`.
 
 ## Buenos primeros aportes
 
-- Mejorar el auto-layout del lienzo de nodos (hoy es simple).
-- Agregar un mini-mapa / overview del grafo.
-- Más detectores de riesgos de seguridad y de escala (con su best practice).
-- Mejorar el parseo de tokens (streaming, totales precalculados).
-- Arrancar la **Fase 2** (ver `docs/roadmap.md`).
+- Auto-layout del lienzo de nodos.
+- Mini-mapa / overview del grafo.
+- Más detectores de riesgos (con best practice).
+- Mejor parseo de tokens + fixtures de logs.
+- Teclado/a11y en el mapa.
+- Extender el schema/validador sin romper ejemplos.
+- Fase 2 solo cuando v1 esté estable (ver `docs/roadmap.md`).
 
 ## Flujo de PR
 
-1. Hacé un fork y una rama (`feat/...` o `fix/...`).
+1. Fork y rama (`feat/...` o `fix/...`).
 2. Cambios chicos y enfocados; describí **qué** y **por qué**.
-3. Si tocás la UX, sumá una captura del antes/después.
-4. Abrí el PR. ¡Gracias! 🙌
+3. Si tocás UI, reensamblá el ejemplo y sumá captura antes/después.
+4. Corré validate + assemble antes de abrir el PR.
