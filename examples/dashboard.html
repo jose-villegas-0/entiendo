@@ -6,44 +6,938 @@
 <title>entiendo — tu carpeta como app</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <style>
-  /* ===== Design tokens · entiendo design system v1 ===== */
+  /* ===== @sho/styles tokens (embebidos · token-first) ===== */
+:root {
+  color-scheme: light;
+
+  /* === CORE: TYPOGRAPHY === */
+  --sho-font-family-sans:
+    "DM Sans", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --sho-font-family-mono:
+    ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --sho-font-weight-regular: 400;
+  --sho-font-weight-medium: 500;
+  --sho-font-weight-semibold: 600;
+  --sho-font-weight-bold: 700;
+
+  --sho-font-size-10: 0.625rem;
+  --sho-font-size-12: 0.75rem;
+  --sho-font-size-14: 0.875rem;
+  --sho-font-size-16: 1rem;
+  --sho-font-size-18: 1.125rem;
+  --sho-font-size-20: 1.25rem;
+  --sho-font-size-24: 1.5rem;
+  --sho-font-size-32: 2rem;
+  --sho-font-size-40: 2.5rem;
+  --sho-font-size-48: 3rem;
+  --sho-font-size-56: 3.5rem;
+  --sho-font-size-80: 5rem;
+  --sho-font-size-96: 6rem;
+
+  --sho-line-height-12: 0.75rem;
+  --sho-line-height-16: 1rem;
+  --sho-line-height-18: 1.125rem;
+  --sho-line-height-20: 1.25rem;
+  --sho-line-height-22: 1.375rem;
+  --sho-line-height-24: 1.5rem;
+  --sho-line-height-28: 1.75rem;
+  --sho-line-height-40: 2.5rem;
+  --sho-line-height-48: 3rem;
+  --sho-line-height-56: 3.5rem;
+  --sho-line-height-64: 4rem;
+
+  --sho-letter-spacing-tight: -0.02em;
+  --sho-letter-spacing-normal: 0;
+  --sho-letter-spacing-wide: 0.05em;
+  --sho-letter-spacing-widest: 0.1em;
+
+  /* === SEMANTIC: TYPOGRAPHY === */
+  --sho-text-body-size-xs: var(--sho-font-size-10);
+  --sho-text-body-size-sm: var(--sho-font-size-12);
+  --sho-text-body-size-md: var(--sho-font-size-14);
+  --sho-text-body-size-lg: var(--sho-font-size-16);
+  --sho-text-body-line-height-xs: var(--sho-line-height-12);
+  --sho-text-body-line-height-sm: var(--sho-line-height-16);
+  --sho-text-body-line-height-md: var(--sho-line-height-18);
+  --sho-text-body-line-height-lg: var(--sho-line-height-20);
+
+  --sho-text-progress-center-label-xl-size: calc(var(--sho-font-size-10) - 2pt);
+  --sho-text-progress-center-label-xl-line-height: calc(var(--sho-line-height-12) - 2pt);
+  --sho-text-progress-center-label-2xl-size: calc(var(--sho-font-size-12) - 2pt);
+  --sho-text-progress-center-label-2xl-line-height: calc(var(--sho-line-height-16) - 2pt);
+
+  --sho-text-heading-size-tiny: var(--sho-font-size-10);
+  --sho-text-heading-size-xs: var(--sho-font-size-12);
+  --sho-text-heading-size-sm: var(--sho-font-size-14);
+  --sho-text-heading-size-md: var(--sho-font-size-16);
+  --sho-text-heading-size-lg: var(--sho-font-size-18);
+  --sho-text-heading-size-xl: var(--sho-font-size-20);
+  --sho-text-heading-size-2xl: var(--sho-font-size-24);
+  --sho-text-heading-size-3xl: var(--sho-font-size-32);
+  --sho-text-heading-line-height-tiny: var(--sho-line-height-12);
+  --sho-text-heading-line-height-xs: var(--sho-line-height-16);
+  --sho-text-heading-line-height-sm: var(--sho-line-height-18);
+  --sho-text-heading-line-height-md: var(--sho-line-height-20);
+  --sho-text-heading-line-height-lg: var(--sho-line-height-22);
+  --sho-text-heading-line-height-xl: var(--sho-line-height-24);
+  --sho-text-heading-line-height-2xl: var(--sho-line-height-28);
+  --sho-text-heading-line-height-3xl: var(--sho-line-height-40);
+
+  --sho-text-display-size-sm: var(--sho-font-size-40);
+  --sho-text-display-size-md: var(--sho-font-size-48);
+  --sho-text-display-size-lg: var(--sho-font-size-56);
+  --sho-text-display-size-hero: var(--sho-font-size-96);
+  --sho-text-display-line-height-sm: var(--sho-line-height-48);
+  --sho-text-display-line-height-md: var(--sho-line-height-56);
+  --sho-text-display-line-height-lg: var(--sho-line-height-64);
+  --sho-text-display-line-height-hero: 0.92;
+
+  --sho-text-eyebrow-size: var(--sho-font-size-10);
+  --sho-text-eyebrow-line-height: var(--sho-line-height-12);
+  --sho-text-eyebrow-weight: var(--sho-font-weight-semibold);
+  --sho-text-eyebrow-letter-spacing: var(--sho-letter-spacing-widest);
+  --sho-text-eyebrow-transform: uppercase;
+  --sho-text-eyebrow-color: var(--sho-color-text-muted);
+
+  /* === CONCEPTUAL: TYPOGRAPHY === */
+  --sho-type-display-size: var(--sho-text-display-size-md);
+  --sho-type-display-line-height: var(--sho-text-display-line-height-md);
+  --sho-type-title-size: var(--sho-text-heading-size-3xl);
+  --sho-type-title-line-height: var(--sho-text-heading-line-height-3xl);
+  --sho-type-heading-size: var(--sho-text-heading-size-xl);
+  --sho-type-heading-line-height: var(--sho-text-heading-line-height-xl);
+  --sho-type-body-size: var(--sho-text-body-size-md);
+  --sho-type-body-line-height: var(--sho-text-body-line-height-md);
+  --sho-type-caption-size: var(--sho-text-body-size-sm);
+  --sho-type-caption-line-height: var(--sho-text-body-line-height-sm);
+  --sho-type-kicker-size: var(--sho-text-eyebrow-size);
+  --sho-type-kicker-line-height: var(--sho-text-eyebrow-line-height);
+  --sho-type-kicker-weight: var(--sho-text-eyebrow-weight);
+  --sho-type-kicker-letter-spacing: var(--sho-text-eyebrow-letter-spacing);
+  --sho-type-kicker-transform: var(--sho-text-eyebrow-transform);
+  --sho-type-kicker-color: var(--sho-text-eyebrow-color);
+  --sho-type-title-color: var(--sho-color-text-primary);
+  --sho-type-heading-color: var(--sho-color-text-primary);
+  --sho-type-body-color: var(--sho-color-text-primary);
+  --sho-type-caption-color: var(--sho-color-text-muted);
+  --sho-type-code-family: var(--sho-font-family-mono);
+
+  /* === CORE: COLOR === */
+  /* Light neutrals: cream anchor #F7F7F4 (surface) + warm ramp for canvas/borders */
+  --sho-color-neutral-0: oklch(0.978 0.003 32);
+  --sho-color-neutral-50: oklch(0.958 0.004 32);
+  --sho-color-neutral-100: oklch(0.938 0.004 32);
+  --sho-color-neutral-200: oklch(0.908 0.005 32);
+  --sho-color-neutral-300: oklch(0.878 0.005 32);
+  --sho-color-neutral-400: oklch(0.78 0 0);
+  --sho-color-neutral-500: oklch(0.5 0 0);
+  --sho-color-neutral-600: oklch(0.38 0 0);
+  --sho-color-neutral-700: oklch(0.25 0 0);
+  --sho-color-neutral-800: oklch(0.16 0 0);
+  --sho-color-neutral-900: oklch(0.1 0 0);
+  --sho-color-neutral-950: oklch(0.05 0 0);
+
+  --sho-color-green-50: oklch(0.97 0.03 145);
+  --sho-color-green-100: oklch(0.92 0.06 145);
+  --sho-color-green-200: oklch(0.84 0.09 145);
+  --sho-color-green-300: oklch(0.76 0.11 145);
+  --sho-color-green-400: oklch(0.7 0.13 145);
+  --sho-color-green-500: oklch(0.65 0.14 145);
+  --sho-color-green-600: oklch(0.55 0.15 145);
+  --sho-color-green-700: oklch(0.45 0.14 145);
+  --sho-color-green-800: oklch(0.35 0.11 145);
+  --sho-color-green-900: oklch(0.25 0.08 145);
+
+  --sho-color-secondary-50: oklch(0.98 0.01 150);
+  --sho-color-secondary-100: oklch(0.95 0.015 150);
+  --sho-color-secondary-200: oklch(0.9 0.02 150);
+  --sho-color-secondary-300: oklch(0.82 0.025 150);
+  --sho-color-secondary-400: oklch(0.68 0.03 150);
+  --sho-color-secondary-500: oklch(0.52 0.035 150);
+  --sho-color-secondary-600: oklch(0.4 0.035 150);
+  --sho-color-secondary-700: oklch(0.3 0.03 150);
+  --sho-color-secondary-800: oklch(0.22 0.025 150);
+  --sho-color-secondary-900: oklch(0.16 0.02 150);
+
+  --sho-color-red-50: oklch(0.96 0.04 25);
+  --sho-color-red-100: oklch(0.93 0.06 25);
+  --sho-color-red-200: oklch(0.88 0.1 25);
+  --sho-color-red-300: oklch(0.82 0.14 25);
+  --sho-color-red-400: oklch(0.74 0.17 25);
+  --sho-color-red-500: oklch(0.68 0.19 25);
+  --sho-color-red-600: oklch(0.6 0.2 25);
+  --sho-color-red-700: oklch(0.5 0.22 25);
+  --sho-color-red-800: oklch(0.42 0.2 25);
+  --sho-color-red-900: oklch(0.32 0.16 25);
+
+  --sho-color-amber-50: oklch(0.96 0.05 85);
+  --sho-color-amber-100: oklch(0.92 0.08 85);
+  --sho-color-amber-200: oklch(0.88 0.1 85);
+  --sho-color-amber-300: oklch(0.84 0.12 85);
+  --sho-color-amber-400: oklch(0.8 0.13 85);
+  --sho-color-amber-500: oklch(0.78 0.14 85);
+  --sho-color-amber-600: oklch(0.75 0.15 85);
+  --sho-color-amber-700: oklch(0.65 0.14 85);
+  --sho-color-amber-800: oklch(0.55 0.12 85);
+  --sho-color-amber-900: oklch(0.45 0.1 85);
+
+  --sho-color-blue-50: oklch(0.96 0.04 250);
+  --sho-color-blue-100: oklch(0.92 0.06 250);
+  --sho-color-blue-200: oklch(0.86 0.09 250);
+  --sho-color-blue-300: oklch(0.78 0.11 250);
+  --sho-color-blue-400: oklch(0.7 0.13 250);
+  --sho-color-blue-500: oklch(0.65 0.14 250);
+  --sho-color-blue-600: oklch(0.6 0.15 250);
+  --sho-color-blue-700: oklch(0.5 0.14 250);
+  --sho-color-blue-800: oklch(0.4 0.12 250);
+  --sho-color-blue-900: oklch(0.3 0.1 250);
+  --sho-color-purple-50: oklch(0.96 0.04 300);
+  --sho-color-purple-600: oklch(0.55 0.15 300);
+
+  --sho-color-black-alpha-10: oklch(0 0 0 / 0.1);
+  --sho-color-black-alpha-20: oklch(0 0 0 / 0.2);
+  --sho-color-black-alpha-60: oklch(0 0 0 / 0.6);
+  --sho-color-black-alpha-70: oklch(0 0 0 / 0.7);
+  --sho-color-white-alpha-20: oklch(1 0 0 / 0.2);
+  --sho-color-white-alpha-80: oklch(1 0 0 / 0.8);
+  --sho-color-white-alpha-100: oklch(1 0 0);
+  --sho-color-transparent: oklch(1 0 0 / 0);
+
+  /* === SEMANTIC: COLOR === */
+  --sho-color-background-base: var(--sho-color-neutral-50);
+  --sho-color-support-background: var(--sho-color-secondary-50);
+  --sho-color-background-subtle: var(--sho-color-neutral-100);
+  --sho-color-background-muted: var(--sho-color-neutral-200);
+  --sho-color-background-overlay: var(--sho-color-black-alpha-60);
+
+  --sho-color-surface-primary-idle: var(--sho-color-neutral-0);
+  --sho-color-surface-primary-hover: var(--sho-color-neutral-100);
+  --sho-color-surface-primary-active: var(--sho-color-neutral-200);
+  --sho-color-support-surface: var(--sho-color-secondary-50);
+  --sho-color-support-surface-hover: var(--sho-color-secondary-100);
+  --sho-color-support-surface-active: var(--sho-color-secondary-200);
+  --sho-color-surface-raised: var(--sho-color-neutral-0);
+  --sho-color-surface-overlay: var(--sho-color-neutral-0);
+
+  --sho-color-support-fill: var(--sho-color-secondary-100);
+  --sho-color-support-fill-on-solid: var(--sho-color-white-alpha-20);
+
+  --sho-color-text-primary: var(--sho-color-neutral-900);
+  --sho-color-support-text: var(--sho-color-secondary-700);
+  --sho-color-text-muted: var(--sho-color-neutral-500);
+  --sho-color-text-disabled: var(--sho-color-neutral-400);
+  --sho-color-text-inverse: var(--sho-color-white-alpha-100);
+  --sho-color-text-accent: var(--sho-color-green-700);
+  --sho-color-support-text-on-solid: var(--sho-color-white-alpha-100);
+
+  --sho-color-border-subtle: var(--sho-color-neutral-200);
+  --sho-color-border-default: var(--sho-color-neutral-300);
+  --sho-color-border-strong: var(--sho-color-neutral-500);
+  --sho-color-border-accent: var(--sho-color-green-600);
+  --sho-color-support-border: var(--sho-color-secondary-300);
+  --sho-color-support-border-on-solid: var(--sho-color-white-alpha-20);
+
+  --sho-color-action-strong-fill: var(--sho-color-green-600);
+  --sho-color-action-strong-fill-hover: var(--sho-color-green-700);
+  --sho-color-action-strong-fill-active: var(--sho-color-green-800);
+  --sho-color-action-soft-fill: var(--sho-color-green-50);
+  --sho-color-action-soft-fill-hover: var(--sho-color-green-100);
+  --sho-color-action-soft-fill-active: var(--sho-color-green-100);
+  --sho-color-action-ghost-fill: var(--sho-color-transparent);
+  --sho-color-action-ghost-fill-hover: var(--sho-color-neutral-100);
+  --sho-color-action-ghost-fill-active: var(--sho-color-neutral-200);
+
+  --sho-color-selected-fill: var(--sho-color-green-600);
+  --sho-color-selected-border: var(--sho-color-green-600);
+  --sho-color-selected-text: var(--sho-color-green-700);
+
+  --sho-color-status-success-solid: var(--sho-color-green-600);
+  --sho-color-status-success-soft: var(--sho-color-green-50);
+  --sho-color-status-warning-solid: var(--sho-color-amber-600);
+  --sho-color-status-warning-soft: var(--sho-color-amber-50);
+  --sho-color-status-danger-solid: var(--sho-color-red-600);
+  --sho-color-status-danger-solid-hover: var(--sho-color-red-700);
+  --sho-color-status-danger-solid-active: var(--sho-color-red-700);
+  --sho-color-status-danger-soft: var(--sho-color-red-50);
+  --sho-color-status-info-solid: var(--sho-color-blue-600);
+  --sho-color-status-info-soft: var(--sho-color-blue-50);
+
+  --sho-color-feedback-text-success: var(--sho-color-green-700);
+  --sho-color-feedback-text-warning: var(--sho-color-amber-900);
+  --sho-color-feedback-text-danger: var(--sho-color-red-700);
+  --sho-color-feedback-text-info: var(--sho-color-blue-700);
+  --sho-color-feedback-border-success: var(--sho-color-green-300);
+  --sho-color-feedback-border-warning: var(--sho-color-amber-300);
+  --sho-color-feedback-border-danger: var(--sho-color-red-300);
+  --sho-color-feedback-border-info: var(--sho-color-blue-300);
+  --sho-color-feedback-icon-success: var(--sho-color-feedback-text-success);
+  --sho-color-feedback-icon-warning: var(--sho-color-feedback-text-warning);
+  --sho-color-feedback-icon-danger: var(--sho-color-feedback-text-danger);
+  --sho-color-feedback-icon-info: var(--sho-color-feedback-text-info);
+  --sho-color-status-success-text: var(--sho-color-feedback-text-success);
+  --sho-color-status-warning-text: var(--sho-color-feedback-text-warning);
+  --sho-color-status-danger-text: var(--sho-color-feedback-text-danger);
+  --sho-color-status-info-text: var(--sho-color-feedback-text-info);
+
+  --sho-color-feedback-fill-success-loud: var(--sho-color-status-success-solid);
+  --sho-color-feedback-fill-success-quiet: var(--sho-color-status-success-soft);
+  --sho-color-feedback-fill-warning-loud: var(--sho-color-status-warning-solid);
+  --sho-color-feedback-fill-warning-quiet: var(--sho-color-status-warning-soft);
+  --sho-color-feedback-fill-danger-loud: var(--sho-color-status-danger-solid);
+  --sho-color-feedback-fill-danger-quiet: var(--sho-color-status-danger-soft);
+  --sho-color-feedback-fill-info-loud: var(--sho-color-status-info-solid);
+  --sho-color-feedback-fill-info-quiet: var(--sho-color-status-info-soft);
+  --sho-color-feedback-fill-positive-loud: var(--sho-color-feedback-fill-success-loud);
+  --sho-color-feedback-fill-positive-quiet: var(--sho-color-feedback-fill-success-quiet);
+  --sho-color-feedback-fill-caution-loud: var(--sho-color-feedback-fill-warning-loud);
+  --sho-color-feedback-fill-caution-quiet: var(--sho-color-feedback-fill-warning-quiet);
+  --sho-color-feedback-fill-negative-loud: var(--sho-color-feedback-fill-danger-loud);
+  --sho-color-feedback-fill-negative-quiet: var(--sho-color-feedback-fill-danger-quiet);
+  --sho-color-feedback-fill-informative-loud: var(--sho-color-feedback-fill-info-loud);
+  --sho-color-feedback-fill-informative-quiet: var(--sho-color-feedback-fill-info-quiet);
+
+  --sho-color-text-on-solid: var(--sho-color-white-alpha-100);
+  --sho-color-icon-on-solid: var(--sho-color-text-on-solid);
+
+  --sho-color-icon-primary: var(--sho-color-text-primary);
+  --sho-color-icon-static: var(--sho-color-support-icon);
+  --sho-color-support-icon: var(--sho-color-support-text);
+  --sho-color-icon-accent: var(--sho-color-text-accent);
+  --sho-color-icon-selected: var(--sho-color-text-accent);
+  --sho-color-icon-inverse: var(--sho-color-text-inverse);
+  --sho-color-support-icon-on-solid: var(--sho-color-support-text-on-solid);
+
+  /* === SPACING === */
+  --sho-spacing-0: 0;
+  --sho-spacing-2: 0.125rem;
+  --sho-spacing-4: 0.25rem;
+  --sho-spacing-6: 0.375rem;
+  --sho-spacing-8: 0.5rem;
+  --sho-spacing-12: 0.75rem;
+  --sho-spacing-16: 1rem;
+  --sho-spacing-20: 1.25rem;
+  --sho-spacing-24: 1.5rem;
+  --sho-spacing-32: 2rem;
+  --sho-spacing-40: 2.5rem;
+  --sho-spacing-48: 3rem;
+  --sho-spacing-64: 4rem;
+
+  --sho-spacing-padding-none: var(--sho-spacing-0);
+  --sho-spacing-padding-pico: var(--sho-spacing-2);
+  --sho-spacing-padding-xnano: var(--sho-spacing-4);
+  --sho-spacing-padding-nano: var(--sho-spacing-6);
+  --sho-spacing-padding-xmicro: var(--sho-spacing-8);
+  --sho-spacing-padding-micro: var(--sho-spacing-12);
+  --sho-spacing-padding-input-inline: calc(var(--sho-spacing-padding-micro) - var(--sho-spacing-2));
+  --sho-spacing-padding-xtiny: var(--sho-spacing-16);
+  --sho-spacing-padding-tiny: var(--sho-spacing-20);
+  --sho-spacing-padding-xsmall: var(--sho-spacing-24);
+  --sho-spacing-padding-small: var(--sho-spacing-32);
+  --sho-spacing-padding-medium: var(--sho-spacing-40);
+  --sho-spacing-padding-large: var(--sho-spacing-48);
+  --sho-spacing-padding-xlarge: var(--sho-spacing-64);
+
+  --sho-spacing-gap-none: var(--sho-spacing-0);
+  --sho-spacing-gap-pico: var(--sho-spacing-2);
+  --sho-spacing-gap-xnano: var(--sho-spacing-4);
+  --sho-spacing-gap-nano: var(--sho-spacing-6);
+  --sho-spacing-gap-xmicro: var(--sho-spacing-8);
+  --sho-spacing-gap-micro: var(--sho-spacing-12);
+  --sho-spacing-gap-xtiny: var(--sho-spacing-16);
+  --sho-spacing-gap-tiny: var(--sho-spacing-20);
+  --sho-spacing-gap-xsmall: var(--sho-spacing-24);
+  --sho-spacing-gap-small: var(--sho-spacing-32);
+  --sho-spacing-gap-medium: var(--sho-spacing-40);
+  --sho-spacing-gap-large: var(--sho-spacing-48);
+  --sho-spacing-gap-xlarge: var(--sho-spacing-64);
+
+  --sho-spacing-gap-form-related: var(--sho-spacing-8);
+  --sho-spacing-gap-form-near: var(--sho-spacing-12);
+  --sho-spacing-gap-form-mid: var(--sho-spacing-16);
+  --sho-spacing-gap-form-wide: var(--sho-spacing-24);
+  --sho-spacing-gap-form-vertical-mid: var(--sho-spacing-32);
+  --sho-spacing-gap-form-vertical-wide: var(--sho-spacing-48);
+  --sho-spacing-gap-form-section: var(--sho-spacing-48);
+
+  --sho-spacing-gap-negative-pico: calc(var(--sho-spacing-2) * -1);
+  --sho-spacing-gap-negative-xnano: calc(var(--sho-spacing-4) * -1);
+  --sho-spacing-gap-negative-nano: calc(var(--sho-spacing-6) * -1);
+  --sho-spacing-gap-negative-xmicro: calc(var(--sho-spacing-8) * -1);
+  --sho-spacing-gap-negative-micro: calc(var(--sho-spacing-12) * -1);
+
+  /* === CONCEPTUAL: SPACING === */
+  --sho-spacing-padding-hairline: var(--sho-spacing-2);
+  --sho-spacing-padding-tight: var(--sho-spacing-4);
+  --sho-spacing-padding-compact: var(--sho-spacing-8);
+  --sho-spacing-padding-cozy: var(--sho-spacing-12);
+  --sho-spacing-padding-roomy: var(--sho-spacing-16);
+  --sho-spacing-padding-generous: var(--sho-spacing-24);
+  --sho-spacing-padding-expansive: var(--sho-spacing-40);
+
+  --sho-spacing-gap-hairline: var(--sho-spacing-2);
+  --sho-spacing-gap-tight: var(--sho-spacing-4);
+  --sho-spacing-gap-compact: var(--sho-spacing-8);
+  --sho-spacing-gap-cozy: var(--sho-spacing-12);
+  --sho-spacing-gap-roomy: var(--sho-spacing-16);
+  --sho-spacing-gap-generous: var(--sho-spacing-24);
+  --sho-spacing-gap-expansive: var(--sho-spacing-48);
+
+  --sho-spacing-form-label: var(--sho-spacing-8);
+  --sho-spacing-form-field: var(--sho-spacing-12);
+  --sho-spacing-form-group: var(--sho-spacing-24);
+  --sho-spacing-form-section: var(--sho-spacing-48);
+
+  --sho-spacing-overlap-subtle: calc(var(--sho-spacing-4) * -1);
+  --sho-spacing-overlap-default: calc(var(--sho-spacing-8) * -1);
+  --sho-spacing-overlap-strong: calc(var(--sho-spacing-12) * -1);
+  --sho-spacing-floating-offset: var(--sho-spacing-6);
+
+  /* === SIZE === */
+  --sho-size-height-action-sm: 2rem;
+  --sho-size-height-action-md: 2.25rem;
+  --sho-size-height-action-lg: 2.5rem;
+  --sho-size-height-input-sm: 2rem;
+  --sho-size-height-input-md: 2.25rem;
+  --sho-size-height-input-lg: 2.5rem;
+  --sho-size-input-affordance: calc(var(--sho-size-icon-xs) + var(--sho-spacing-8));
+  --sho-size-input-affordance-lg: var(--sho-size-input-affordance);
+  --sho-size-input-affordance-sm: var(--sho-size-input-affordance);
+  /** Ancho mínimo del campo de texto en inputs con chips inline (p. ej. combobox multi). */
+  --sho-size-input-inline-min: 7rem;
+  --sho-size-control-sm: 1rem;
+  --sho-size-control-md: 1.25rem;
+  --sho-size-icon-micro: 0.75rem;
+  --sho-size-icon-xs: 0.875rem;
+  --sho-size-icon-sm: 1rem;
+  --sho-size-icon-md: 1.25rem;
+  --sho-size-icon-lg: 1.5rem;
+  --sho-size-media-xs: 1.5rem;
+  --sho-size-media-sm: 2rem;
+  --sho-size-media-md: 2.5rem;
+  --sho-size-media-lg: 3rem;
+  --sho-size-media-xl: 4rem;
+
+  /* === CONCEPTUAL: SIZE === */
+  --sho-size-action-compact: var(--sho-size-height-action-sm);
+  --sho-size-action-default: var(--sho-size-height-action-md);
+  --sho-size-action-prominent: var(--sho-size-height-action-lg);
+  --sho-size-field-compact: var(--sho-size-height-input-sm);
+  --sho-size-field-default: var(--sho-size-height-input-md);
+  --sho-size-field-comfortable: var(--sho-size-height-input-lg);
+  --sho-size-icon-inline: var(--sho-size-icon-xs);
+  --sho-size-icon-support: var(--sho-size-icon-sm);
+  --sho-size-icon-action: var(--sho-size-icon-md);
+  --sho-size-icon-feature: var(--sho-size-icon-lg);
+  --sho-size-avatar-compact: var(--sho-size-media-xs);
+  --sho-size-avatar-default: var(--sho-size-media-sm);
+  --sho-size-avatar-feature: var(--sho-size-media-md);
+  --sho-size-media-thumb: var(--sho-size-media-sm);
+  --sho-size-media-preview: var(--sho-size-media-lg);
+  --sho-size-media-feature: var(--sho-size-media-xl);
+  --sho-size-indicator-dot: var(--sho-spacing-6);
+  --sho-size-progress-sm: 0.25rem;
+  --sho-size-progress-md: 0.5rem;
+  --sho-size-progress-lg: 0.75rem;
+  --sho-size-progress-circle-sm: var(--sho-size-icon-sm);
+  --sho-size-progress-circle-md: var(--sho-size-icon-md);
+  --sho-size-progress-circle-lg: var(--sho-size-icon-lg);
+  --sho-size-progress-circle-xl: var(--sho-size-media-sm);
+  --sho-size-progress-circle-2xl: var(--sho-size-media-md);
+  --sho-size-table-sm: var(--sho-size-height-action-sm);
+  --sho-size-table-md: var(--sho-size-height-action-md);
+
+  /* === Z-INDEX === */
+  --sho-z-floating: 20;
+  --sho-z-overlay: 50;
+
+  /* === BORDER === */
+  --sho-border-radius-none: 0;
+  --sho-border-radius-sm: 4px;
+  --sho-border-radius-md: 8px;
+  --sho-border-radius-lg: 12px;
+  --sho-border-radius-full: 9999px;
+  --sho-border-radius-action: var(--sho-border-radius-md);
+  --sho-border-radius-action-compact: var(--sho-border-radius-sm);
+  --sho-border-radius-input: var(--sho-border-radius-md);
+  --sho-border-radius-container: var(--sho-border-radius-md);
+  --sho-border-radius-container-compact: var(--sho-border-radius-sm);
+  --sho-border-width-none: 0;
+  --sho-border-width-subtle: 1px;
+  --sho-border-width-default: 1px;
+  --sho-border-width-strong: 2px;
+
+  /* === CONCEPTUAL: BORDER === */
+  --sho-border-radius-subtle: var(--sho-border-radius-sm);
+  --sho-border-radius-soft: var(--sho-border-radius-md);
+  --sho-border-width-hairline: var(--sho-border-width-subtle);
+
+  /* === SHADOW === */
+  --sho-shadow-ink-raised: oklch(0 0 0 / 0.05);
+  --sho-shadow-ink-floating: oklch(0 0 0 / 0.18);
+  --sho-shadow-depth-raised: 0 1px 2px 0 var(--sho-shadow-ink-raised);
+  --sho-shadow-depth-floating: 0 8px 16px -8px var(--sho-shadow-ink-floating);
+  --sho-shadow-ring-accent: 0 0 0 2px var(--sho-color-green-100);
+  --sho-shadow-ring-success: 0 0 0 2px var(--sho-color-green-100);
+  --sho-shadow-ring-warning: 0 0 0 2px var(--sho-color-amber-50);
+  --sho-shadow-ring-danger: 0 0 0 2px var(--sho-color-red-50);
+  --sho-shadow-ring-focus: var(--sho-shadow-ring-accent);
+  --sho-shadow-elevation-low: var(--sho-shadow-depth-raised);
+  --sho-shadow-elevation-high: var(--sho-shadow-depth-floating);
+  --sho-shadow-highlight-accent: var(--sho-shadow-ring-accent);
+  --sho-shadow-highlight-success: var(--sho-shadow-ring-success);
+  --sho-shadow-highlight-warning: var(--sho-shadow-ring-warning);
+  --sho-shadow-highlight-danger: var(--sho-shadow-ring-danger);
+
+  /* === LAYOUT === */
+  --sho-layout-container-sm: 40rem;
+  --sho-layout-container-md: 56rem;
+  --sho-layout-container-lg: 72rem;
+  --sho-layout-container-xl: 88rem;
+  --sho-layout-gutter-sm: var(--sho-spacing-16);
+  --sho-layout-gutter-md: var(--sho-spacing-24);
+  --sho-layout-gutter-lg: var(--sho-spacing-32);
+  --sho-layout-margin-sm: var(--sho-spacing-16);
+  --sho-layout-margin-md: var(--sho-spacing-24);
+  --sho-layout-margin-lg: var(--sho-spacing-40);
+  --sho-layout-sidebar-width: 14rem;
+  --sho-layout-content-measure: 42rem;
+  --sho-layout-content-narrow: var(--sho-layout-content-measure);
+  --sho-layout-content-wide: 64rem;
+
+  /* === CONCEPTUAL: LAYOUT === */
+  --sho-layout-frame-compact: var(--sho-layout-container-md);
+  --sho-layout-frame-default: var(--sho-layout-container-lg);
+  --sho-layout-frame-wide: var(--sho-layout-container-xl);
+  --sho-layout-gutter-compact: var(--sho-layout-gutter-sm);
+  --sho-layout-gutter-default: var(--sho-layout-gutter-md);
+  --sho-layout-gutter-wide: var(--sho-layout-gutter-lg);
+  --sho-layout-measure-reading: var(--sho-layout-content-measure);
+  --sho-layout-measure-editorial: var(--sho-layout-content-wide);
+  --sho-layout-measure-data: var(--sho-layout-container-lg);
+  --sho-layout-sidebar-compact: 12rem;
+  --sho-layout-sidebar-default: var(--sho-layout-sidebar-width);
+  --sho-layout-sidebar-expanded: 18rem;
+  --sho-layout-floating-anchor: calc(100% + var(--sho-spacing-floating-offset));
+  --sho-layout-overlay-min-width: 12rem;
+  --sho-layout-offset-floating: 4px;
+  --sho-layout-offset-popover: 8px;
+  --sho-layout-offset-collision: 8px;
+  --sho-layout-popover-width: 16rem;
+  --sho-layout-datepicker-width: 18rem;
+  --sho-layout-timepicker-width: 14rem;
+  --sho-layout-toast-max-width: 28rem;
+  --sho-layout-snackbar-max-width: var(--sho-layout-toast-max-width);
+  --sho-layout-form-reference-width: 23.75rem;
+
+  /* === LAYOUT GRID (mini unit 8px) === */
+  --sho-layout-grid-unit: var(--sho-spacing-8);
+  --sho-layout-grid-padding: var(--sho-spacing-16);
+  --sho-layout-grid-columns-sm: 4;
+  --sho-layout-grid-columns-md: 8;
+  --sho-layout-grid-columns-lg: 12;
+  /* Keep in sync with @theme --breakpoint-md / --breakpoint-lg above */
+  --sho-layout-breakpoint-md: 40rem;
+  --sho-layout-breakpoint-lg: 64rem;
+  --sho-layout-grid-margin-sm: var(--sho-spacing-0);
+  --sho-layout-grid-margin-md: var(--sho-layout-margin-sm);
+  --sho-layout-grid-margin-lg: var(--sho-layout-margin-sm);
+
+  /* === MOTION === */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --sho-motion-duration-instant: 75ms;
+  --sho-motion-duration-quick: var(--duration-fast);
+  --sho-motion-duration-steady: var(--duration-base);
+  --sho-motion-duration-slow: var(--duration-slow);
+  /* Circular progress indeterminate: smooth linear spin, 30% slower than prior 400ms */
+  --sho-motion-duration-progress-indeterminate: 520ms;
+  --sho-motion-easing-linear: linear;
+  --sho-motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --sho-motion-easing-enter: cubic-bezier(0, 0, 0.2, 1);
+  --sho-motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --sho-motion-easing-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+  --sho-motion-easing-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* === SCROLLBAR === */
+  --sho-scrollbar-size: var(--sho-spacing-6);
+  --sho-scrollbar-track: var(--sho-color-transparent);
+  --sho-scrollbar-thumb: var(--sho-color-border-subtle);
+  --sho-scrollbar-thumb-hover: var(--sho-color-border-default);
+  --sho-scrollbar-thumb-active: var(--sho-color-border-strong);
+
+  /* === LEGACY BRIDGES (prefer --sho-* in new code) === */
+  --font-size-xs: var(--sho-font-size-10);
+  --font-size-sm: var(--sho-font-size-12);
+  --font-size-base: var(--sho-font-size-14);
+  --font-size-lg: var(--sho-font-size-16);
+  --font-size-xl: var(--sho-font-size-20);
+  --font-size-2xl: var(--sho-font-size-24);
+  --font-size-3xl: var(--sho-font-size-32);
+  --font-size-4xl: var(--sho-font-size-40);
+  --tracking-tight: var(--sho-letter-spacing-tight);
+  --tracking-wide: var(--sho-letter-spacing-wide);
+  --tracking-widest: var(--sho-letter-spacing-widest);
+
+  /* === TAILWIND BRIDGE (body + @theme utilities only) === */
+  --background: var(--sho-color-background-base);
+  --foreground: var(--sho-color-text-primary);
+  --card: var(--sho-color-surface-primary-idle);
+  --card-foreground: var(--sho-color-text-primary);
+  --popover: var(--sho-color-surface-raised);
+  --popover-foreground: var(--sho-color-text-primary);
+  --primary: var(--sho-color-action-strong-fill);
+  --primary-foreground: var(--sho-color-text-inverse);
+  --secondary: var(--sho-color-support-fill);
+  --secondary-foreground: var(--sho-color-text-primary);
+  --muted: var(--sho-color-background-subtle);
+  --muted-foreground: var(--sho-color-text-muted);
+  --accent: var(--sho-color-action-ghost-fill-hover);
+  --accent-foreground: var(--sho-color-text-primary);
+  --destructive: var(--sho-color-status-danger-solid);
+  --destructive-foreground: var(--sho-color-text-inverse);
+  --success: var(--sho-color-status-success-solid);
+  --success-foreground: var(--sho-color-text-inverse);
+  --warning: var(--sho-color-status-warning-solid);
+  --warning-foreground: var(--sho-color-neutral-900);
+  --info: var(--sho-color-status-info-solid);
+  --info-foreground: var(--sho-color-text-inverse);
+  --accent-alt: var(--sho-color-purple-600);
+  --accent-alt-foreground: var(--sho-color-text-inverse);
+  --border: var(--sho-color-border-default);
+  --input: var(--sho-color-border-default);
+  --ring: var(--sho-color-border-accent);
+}
+
+/* Forced light theme (preview columns, probes) — mirrors :root semantics */
+[data-theme="light"] {
+  /* === SEMANTIC: COLOR === */
+  --sho-color-background-base: var(--sho-color-neutral-50);
+  --sho-color-support-background: var(--sho-color-secondary-50);
+  --sho-color-background-subtle: var(--sho-color-neutral-100);
+  --sho-color-background-muted: var(--sho-color-neutral-200);
+  --sho-color-background-overlay: var(--sho-color-black-alpha-60);
+
+  --sho-color-surface-primary-idle: var(--sho-color-neutral-0);
+  --sho-color-surface-primary-hover: var(--sho-color-neutral-100);
+  --sho-color-surface-primary-active: var(--sho-color-neutral-200);
+  --sho-color-support-surface: var(--sho-color-secondary-50);
+  --sho-color-support-surface-hover: var(--sho-color-secondary-100);
+  --sho-color-support-surface-active: var(--sho-color-secondary-200);
+  --sho-color-surface-raised: var(--sho-color-neutral-0);
+  --sho-color-surface-overlay: var(--sho-color-neutral-0);
+
+  --sho-color-support-fill: var(--sho-color-secondary-100);
+  --sho-color-support-fill-on-solid: var(--sho-color-white-alpha-20);
+
+  --sho-color-text-primary: var(--sho-color-neutral-900);
+  --sho-color-support-text: var(--sho-color-secondary-700);
+  --sho-color-text-muted: var(--sho-color-neutral-500);
+  --sho-color-text-disabled: var(--sho-color-neutral-400);
+  --sho-color-text-inverse: var(--sho-color-white-alpha-100);
+  --sho-color-text-accent: var(--sho-color-green-700);
+  --sho-color-support-text-on-solid: var(--sho-color-white-alpha-100);
+
+  --sho-color-border-subtle: var(--sho-color-neutral-200);
+  --sho-color-border-default: var(--sho-color-neutral-300);
+  --sho-color-border-strong: var(--sho-color-neutral-500);
+  --sho-color-border-accent: var(--sho-color-green-600);
+  --sho-color-support-border: var(--sho-color-secondary-300);
+  --sho-color-support-border-on-solid: var(--sho-color-white-alpha-20);
+
+  --sho-color-action-strong-fill: var(--sho-color-green-600);
+  --sho-color-action-strong-fill-hover: var(--sho-color-green-700);
+  --sho-color-action-strong-fill-active: var(--sho-color-green-800);
+  --sho-color-action-soft-fill: var(--sho-color-green-50);
+  --sho-color-action-soft-fill-hover: var(--sho-color-green-100);
+  --sho-color-action-soft-fill-active: var(--sho-color-green-100);
+  --sho-color-action-ghost-fill: var(--sho-color-transparent);
+  --sho-color-action-ghost-fill-hover: var(--sho-color-neutral-100);
+  --sho-color-action-ghost-fill-active: var(--sho-color-neutral-200);
+
+  --sho-color-selected-fill: var(--sho-color-green-600);
+  --sho-color-selected-border: var(--sho-color-green-600);
+  --sho-color-selected-text: var(--sho-color-green-700);
+
+  --sho-color-status-success-solid: var(--sho-color-green-600);
+  --sho-color-status-success-soft: var(--sho-color-green-50);
+  --sho-color-status-warning-solid: var(--sho-color-amber-600);
+  --sho-color-status-warning-soft: var(--sho-color-amber-50);
+  --sho-color-status-danger-solid: var(--sho-color-red-600);
+  --sho-color-status-danger-solid-hover: var(--sho-color-red-700);
+  --sho-color-status-danger-solid-active: var(--sho-color-red-700);
+  --sho-color-status-danger-soft: var(--sho-color-red-50);
+  --sho-color-status-info-solid: var(--sho-color-blue-600);
+  --sho-color-status-info-soft: var(--sho-color-blue-50);
+
+  --sho-color-feedback-text-success: var(--sho-color-green-700);
+  --sho-color-feedback-text-warning: var(--sho-color-amber-900);
+  --sho-color-feedback-text-danger: var(--sho-color-red-700);
+  --sho-color-feedback-text-info: var(--sho-color-blue-700);
+  --sho-color-feedback-border-success: var(--sho-color-green-300);
+  --sho-color-feedback-border-warning: var(--sho-color-amber-300);
+  --sho-color-feedback-border-danger: var(--sho-color-red-300);
+  --sho-color-feedback-border-info: var(--sho-color-blue-300);
+  --sho-color-feedback-icon-success: var(--sho-color-feedback-text-success);
+  --sho-color-feedback-icon-warning: var(--sho-color-feedback-text-warning);
+  --sho-color-feedback-icon-danger: var(--sho-color-feedback-text-danger);
+  --sho-color-feedback-icon-info: var(--sho-color-feedback-text-info);
+  --sho-color-status-success-text: var(--sho-color-feedback-text-success);
+  --sho-color-status-warning-text: var(--sho-color-feedback-text-warning);
+  --sho-color-status-danger-text: var(--sho-color-feedback-text-danger);
+  --sho-color-status-info-text: var(--sho-color-feedback-text-info);
+
+  --sho-color-feedback-fill-success-loud: var(--sho-color-status-success-solid);
+  --sho-color-feedback-fill-success-quiet: var(--sho-color-status-success-soft);
+  --sho-color-feedback-fill-warning-loud: var(--sho-color-status-warning-solid);
+  --sho-color-feedback-fill-warning-quiet: var(--sho-color-status-warning-soft);
+  --sho-color-feedback-fill-danger-loud: var(--sho-color-status-danger-solid);
+  --sho-color-feedback-fill-danger-quiet: var(--sho-color-status-danger-soft);
+  --sho-color-feedback-fill-info-loud: var(--sho-color-status-info-solid);
+  --sho-color-feedback-fill-info-quiet: var(--sho-color-status-info-soft);
+  --sho-color-feedback-fill-positive-loud: var(--sho-color-feedback-fill-success-loud);
+  --sho-color-feedback-fill-positive-quiet: var(--sho-color-feedback-fill-success-quiet);
+  --sho-color-feedback-fill-caution-loud: var(--sho-color-feedback-fill-warning-loud);
+  --sho-color-feedback-fill-caution-quiet: var(--sho-color-feedback-fill-warning-quiet);
+  --sho-color-feedback-fill-negative-loud: var(--sho-color-feedback-fill-danger-loud);
+  --sho-color-feedback-fill-negative-quiet: var(--sho-color-feedback-fill-danger-quiet);
+  --sho-color-feedback-fill-informative-loud: var(--sho-color-feedback-fill-info-loud);
+  --sho-color-feedback-fill-informative-quiet: var(--sho-color-feedback-fill-info-quiet);
+
+  --sho-color-text-on-solid: var(--sho-color-white-alpha-100);
+  --sho-color-icon-on-solid: var(--sho-color-text-on-solid);
+
+  --sho-color-icon-primary: var(--sho-color-text-primary);
+  --sho-color-icon-static: var(--sho-color-support-icon);
+  --sho-color-support-icon: var(--sho-color-support-text);
+  --sho-color-icon-accent: var(--sho-color-text-accent);
+  --sho-color-icon-selected: var(--sho-color-text-accent);
+  --sho-color-icon-inverse: var(--sho-color-text-inverse);
+  --sho-color-support-icon-on-solid: var(--sho-color-support-text-on-solid);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* === CORE: COLOR (dark-only scales) === */
+  --sho-color-dark-green-neutral-50: oklch(0.04 0.01 145);
+  --sho-color-dark-green-neutral-100: oklch(0.07 0.016 145);
+  --sho-color-dark-green-neutral-200: oklch(0.1 0.02 145);
+  --sho-color-dark-green-neutral-300: oklch(0.14 0.024 145);
+  --sho-color-dark-green-neutral-400: oklch(0.18 0.026 145);
+  --sho-color-dark-green-neutral-500: oklch(0.22 0.026 145);
+  --sho-color-dark-green-neutral-600: oklch(0.3 0.024 145);
+  --sho-color-dark-green-neutral-700: oklch(0.45 0.02 145);
+  --sho-color-dark-green-neutral-800: oklch(0.65 0.018 145);
+  --sho-color-dark-green-neutral-900: oklch(0.93 0.015 145);
+
+  --sho-color-dark-green-50: oklch(0.14 0.04 145);
+  --sho-color-dark-green-100: oklch(0.18 0.05 145);
+  --sho-color-dark-green-200: oklch(0.22 0.06 145);
+  --sho-color-dark-green-300: oklch(0.28 0.07 145);
+  --sho-color-dark-green-400: oklch(0.38 0.09 145);
+  --sho-color-dark-green-500: oklch(0.55 0.12 145);
+  --sho-color-dark-green-600: oklch(0.62 0.13 145);
+  --sho-color-dark-green-700: oklch(0.68 0.14 145);
+  --sho-color-dark-green-800: oklch(0.74 0.14 145);
+  --sho-color-dark-green-900: oklch(0.82 0.12 145);
+
+  --sho-color-dark-secondary-50: oklch(0.07 0.016 150);
+  --sho-color-dark-secondary-100: oklch(0.1 0.022 150);
+  --sho-color-dark-secondary-200: oklch(0.12 0.026 150);
+  --sho-color-dark-secondary-300: oklch(0.15 0.028 150);
+  --sho-color-dark-secondary-400: oklch(0.18 0.03 150);
+  --sho-color-dark-secondary-500: oklch(0.22 0.032 150);
+  --sho-color-dark-secondary-600: oklch(0.32 0.03 150);
+  --sho-color-dark-secondary-700: oklch(0.48 0.028 150);
+  --sho-color-dark-secondary-800: oklch(0.65 0.025 150);
+  --sho-color-dark-secondary-900: oklch(0.82 0.022 150);
+
+  --sho-color-dark-red-50: oklch(0.14 0.04 25);
+  --sho-color-dark-red-100: oklch(0.18 0.05 25);
+  --sho-color-dark-red-200: oklch(0.22 0.06 25);
+  --sho-color-dark-red-300: oklch(0.28 0.08 25);
+  --sho-color-dark-red-400: oklch(0.38 0.1 25);
+  --sho-color-dark-red-500: oklch(0.5 0.14 25);
+  --sho-color-dark-red-600: oklch(0.62 0.18 25);
+  --sho-color-dark-red-700: oklch(0.72 0.16 25);
+  --sho-color-dark-red-800: oklch(0.78 0.14 25);
+  --sho-color-dark-red-900: oklch(0.88 0.1 25);
+
+  --sho-color-dark-amber-50: oklch(0.14 0.04 85);
+  --sho-color-dark-amber-100: oklch(0.18 0.05 85);
+  --sho-color-dark-amber-200: oklch(0.22 0.06 85);
+  --sho-color-dark-amber-300: oklch(0.28 0.08 85);
+  --sho-color-dark-amber-400: oklch(0.38 0.1 85);
+  --sho-color-dark-amber-500: oklch(0.5 0.12 85);
+  --sho-color-dark-amber-600: oklch(0.74 0.14 85);
+  --sho-color-dark-amber-700: oklch(0.78 0.14 85);
+  --sho-color-dark-amber-800: oklch(0.84 0.12 85);
+  --sho-color-dark-amber-900: oklch(0.9 0.1 85);
+
+  --sho-color-dark-blue-50: oklch(0.14 0.04 250);
+  --sho-color-dark-blue-100: oklch(0.18 0.05 250);
+  --sho-color-dark-blue-200: oklch(0.22 0.06 250);
+  --sho-color-dark-blue-300: oklch(0.28 0.08 250);
+  --sho-color-dark-blue-400: oklch(0.38 0.1 250);
+  --sho-color-dark-blue-500: oklch(0.5 0.12 250);
+  --sho-color-dark-blue-600: oklch(0.68 0.13 250);
+  --sho-color-dark-blue-700: oklch(0.74 0.12 250);
+  --sho-color-dark-blue-800: oklch(0.8 0.1 250);
+  --sho-color-dark-blue-900: oklch(0.88 0.08 250);
+
+  /* === SEMANTIC: COLOR === */
+  --sho-color-background-base: var(--sho-color-dark-green-neutral-200);
+  --sho-color-support-background: var(--sho-color-dark-secondary-100);
+  --sho-color-background-subtle: var(--sho-color-dark-green-neutral-100);
+  --sho-color-background-muted: var(--sho-color-dark-green-neutral-50);
+  --sho-color-background-overlay: var(--sho-color-black-alpha-70);
+
+  --sho-color-surface-primary-idle: var(--sho-color-dark-green-neutral-300);
+  --sho-color-surface-primary-hover: var(--sho-color-dark-green-neutral-400);
+  --sho-color-surface-primary-active: var(--sho-color-dark-green-neutral-500);
+  --sho-color-support-surface: var(--sho-color-dark-secondary-200);
+  --sho-color-support-surface-hover: var(--sho-color-dark-secondary-300);
+  --sho-color-support-surface-active: var(--sho-color-dark-secondary-400);
+  --sho-color-surface-raised: var(--sho-color-dark-green-neutral-400);
+  --sho-color-surface-overlay: var(--sho-color-dark-green-neutral-500);
+
+  --sho-color-support-fill: var(--sho-color-dark-secondary-300);
+  --sho-color-support-fill-on-solid: var(--sho-color-black-alpha-20);
+
+  --sho-color-text-primary: var(--sho-color-dark-green-neutral-900);
+  --sho-color-support-text: var(--sho-color-dark-green-neutral-800);
+  --sho-color-text-muted: var(--sho-color-dark-green-neutral-800);
+  --sho-color-text-disabled: var(--sho-color-dark-green-neutral-600);
+  --sho-color-text-inverse: var(--sho-color-dark-green-neutral-100);
+  --sho-color-text-accent: var(--sho-color-dark-green-600);
+  --sho-color-support-text-on-solid: var(--sho-color-dark-green-neutral-900);
+  --sho-color-text-on-solid: var(--sho-color-dark-green-neutral-900);
+
+  --sho-color-border-subtle: var(--sho-color-dark-green-neutral-600);
+  --sho-color-border-default: var(--sho-color-dark-green-neutral-700);
+  --sho-color-border-strong: var(--sho-color-dark-green-neutral-800);
+  --sho-color-border-accent: var(--sho-color-dark-green-500);
+  --sho-color-support-border: var(--sho-color-dark-secondary-400);
+  --sho-color-support-border-on-solid: var(--sho-color-black-alpha-20);
+
+  --sho-color-action-strong-fill: var(--sho-color-dark-green-500);
+  --sho-color-action-strong-fill-hover: var(--sho-color-dark-green-600);
+  --sho-color-action-strong-fill-active: var(--sho-color-dark-green-700);
+  --sho-color-action-soft-fill: var(--sho-color-dark-green-50);
+  --sho-color-action-soft-fill-hover: var(--sho-color-dark-green-100);
+  --sho-color-action-soft-fill-active: var(--sho-color-dark-green-200);
+  --sho-color-action-ghost-fill: var(--sho-color-transparent);
+  --sho-color-action-ghost-fill-hover: var(--sho-color-dark-green-neutral-200);
+  --sho-color-action-ghost-fill-active: var(--sho-color-dark-green-neutral-300);
+
+  --sho-color-selected-fill: var(--sho-color-dark-green-500);
+  --sho-color-selected-border: var(--sho-color-dark-green-500);
+  --sho-color-selected-text: var(--sho-color-dark-green-700);
+
+  --sho-color-status-success-solid: var(--sho-color-dark-green-600);
+  --sho-color-status-success-soft: var(--sho-color-dark-green-50);
+  --sho-color-status-warning-solid: var(--sho-color-dark-amber-600);
+  --sho-color-status-warning-soft: var(--sho-color-dark-amber-50);
+  --sho-color-status-danger-solid: var(--sho-color-dark-red-600);
+  --sho-color-status-danger-solid-hover: var(--sho-color-dark-red-700);
+  --sho-color-status-danger-solid-active: var(--sho-color-dark-red-800);
+  --sho-color-status-danger-soft: var(--sho-color-dark-red-50);
+  --sho-color-status-info-solid: var(--sho-color-dark-blue-600);
+  --sho-color-status-info-soft: var(--sho-color-dark-blue-50);
+
+  --sho-color-feedback-text-success: var(--sho-color-dark-green-700);
+  --sho-color-feedback-text-warning: var(--sho-color-dark-amber-700);
+  --sho-color-feedback-text-danger: var(--sho-color-dark-red-700);
+  --sho-color-feedback-text-info: var(--sho-color-dark-blue-700);
+  --sho-color-feedback-border-success: var(--sho-color-dark-green-300);
+  --sho-color-feedback-border-warning: var(--sho-color-dark-amber-300);
+  --sho-color-feedback-border-danger: var(--sho-color-dark-red-300);
+  --sho-color-feedback-border-info: var(--sho-color-dark-blue-300);
+  --sho-color-feedback-icon-success: var(--sho-color-feedback-text-success);
+  --sho-color-feedback-icon-warning: var(--sho-color-feedback-text-warning);
+  --sho-color-feedback-icon-danger: var(--sho-color-feedback-text-danger);
+  --sho-color-feedback-icon-info: var(--sho-color-feedback-text-info);
+
+  --sho-color-status-success-text: var(--sho-color-feedback-text-success);
+  --sho-color-status-warning-text: var(--sho-color-feedback-text-warning);
+  --sho-color-status-danger-text: var(--sho-color-feedback-text-danger);
+  --sho-color-status-info-text: var(--sho-color-feedback-text-info);
+
+  --sho-color-feedback-fill-success-loud: var(--sho-color-status-success-solid);
+  --sho-color-feedback-fill-success-quiet: var(--sho-color-status-success-soft);
+  --sho-color-feedback-fill-warning-loud: var(--sho-color-status-warning-solid);
+  --sho-color-feedback-fill-warning-quiet: var(--sho-color-status-warning-soft);
+  --sho-color-feedback-fill-danger-loud: var(--sho-color-status-danger-solid);
+  --sho-color-feedback-fill-danger-quiet: var(--sho-color-status-danger-soft);
+  --sho-color-feedback-fill-info-loud: var(--sho-color-status-info-solid);
+  --sho-color-feedback-fill-info-quiet: var(--sho-color-status-info-soft);
+  --sho-color-feedback-fill-positive-loud: var(--sho-color-feedback-fill-success-loud);
+  --sho-color-feedback-fill-positive-quiet: var(--sho-color-feedback-fill-success-quiet);
+  --sho-color-feedback-fill-caution-loud: var(--sho-color-feedback-fill-warning-loud);
+  --sho-color-feedback-fill-caution-quiet: var(--sho-color-feedback-fill-warning-quiet);
+  --sho-color-feedback-fill-negative-loud: var(--sho-color-feedback-fill-danger-loud);
+  --sho-color-feedback-fill-negative-quiet: var(--sho-color-feedback-fill-danger-quiet);
+  --sho-color-feedback-fill-informative-loud: var(--sho-color-feedback-fill-info-loud);
+  --sho-color-feedback-fill-informative-quiet: var(--sho-color-feedback-fill-info-quiet);
+
+  --sho-color-icon-primary: var(--sho-color-text-primary);
+  --sho-color-icon-static: var(--sho-color-support-icon);
+  --sho-color-support-icon: var(--sho-color-support-text);
+  --sho-color-icon-accent: var(--sho-color-text-accent);
+  --sho-color-icon-selected: var(--sho-color-text-accent);
+  --sho-color-icon-inverse: var(--sho-color-text-inverse);
+  --sho-color-icon-on-solid: var(--sho-color-text-on-solid);
+  --sho-color-support-icon-on-solid: var(--sho-color-support-text-on-solid);
+
+  --sho-shadow-ink-raised: oklch(0 0 0 / 0.25);
+  --sho-shadow-ink-floating: oklch(0 0 0 / 0.55);
+  --sho-shadow-depth-raised: 0 1px 2px 0 var(--sho-shadow-ink-raised);
+  --sho-shadow-depth-floating: 0 12px 24px -10px var(--sho-shadow-ink-floating);
+  --sho-shadow-ring-accent: 0 0 0 2px var(--sho-color-dark-green-200);
+  --sho-shadow-ring-success: 0 0 0 2px var(--sho-color-dark-green-200);
+  --sho-shadow-ring-warning: 0 0 0 2px var(--sho-color-dark-amber-200);
+  --sho-shadow-ring-danger: 0 0 0 2px var(--sho-color-dark-red-200);
+}
+
+  /* ===== entiendo -> @sho aliases ===== */
   :root{
-    /* dark = default (CLAUDE.md) — azul casi negro, tinte slate */
-    --bg:#070B16; --bg2:#0B1020; --surface:#11182B; --surface2:#1C2740; --surface3:#2A3A5C;
-    --border:rgba(148,163,184,.14); --border2:rgba(148,163,184,.26);
-    --text:#F8FAFC; --muted:#94A3B8; --faint:#64748B;
-    --accent:#60A5FA; --accent2:#93C5FD;
-    --ok:#34D399; --ok-bg:rgba(52,211,153,.12);
-    --mid:#FBBF24; --mid-bg:rgba(251,191,36,.12);
-    --bad:#F87171; --bad-bg:rgba(248,113,113,.12);
-    --info:#22D3EE;
-    /* shadow-sm / lg from design.md (dark) — subtle, no glow */
-    --shadow-sm:0 1px 2px rgba(0,0,0,.3);
-    --shadow:0 10px 15px rgba(0,0,0,.4), 0 4px 6px rgba(0,0,0,.3);
-    --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-full:9999px;
-    --t:150ms cubic-bezier(.4,0,.2,1);
+    --bg:var(--sho-color-background-base);
+    --bg2:var(--sho-color-background-subtle);
+    --surface:var(--sho-color-surface-primary-idle);
+    --surface2:var(--sho-color-surface-primary-hover);
+    --surface3:var(--sho-color-surface-primary-active);
+    --border:var(--sho-color-border-subtle);
+    --border2:var(--sho-color-border-default);
+    --text:var(--sho-color-text-primary);
+    --muted:var(--sho-color-text-muted);
+    --faint:var(--sho-color-text-disabled);
+    --accent:var(--sho-color-text-accent);
+    --accent2:var(--sho-color-action-strong-fill);
+    --ok:var(--sho-color-status-success-text);  --ok-bg:var(--sho-color-status-success-soft);
+    --mid:var(--sho-color-status-warning-text); --mid-bg:var(--sho-color-status-warning-soft);
+    --bad:var(--sho-color-status-danger-text);  --bad-bg:var(--sho-color-status-danger-soft);
+    --info:var(--sho-color-status-info-text);
+    --shadow-sm:var(--sho-shadow-depth-raised);
+    --shadow:var(--sho-shadow-depth-floating);
+    --radius-sm:var(--sho-border-radius-sm); --radius-md:var(--sho-border-radius-md);
+    --radius-lg:var(--sho-border-radius-lg); --radius-full:var(--sho-border-radius-full);
+    --t:150ms var(--sho-motion-easing-standard);
     --side:248px;
-    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --mono:var(--sho-font-family-mono);
   }
-  [data-theme="light"]{
-    --bg:#F9FAFB; --bg2:#FFFFFF; --surface:#FFFFFF; --surface2:#F3F4F6; --surface3:#E5E7EB;
-    --border:#E5E7EB; --border2:#D1D5DB;
-    --text:#111827; --muted:#4B5563; --faint:#9CA3AF;
-    --accent:#3B82F6; --accent2:#1D4ED8;
-    --ok:#10B981; --mid:#F59E0B; --bad:#EF4444;
-    --ok-bg:rgba(16,185,129,.10); --mid-bg:rgba(245,158,11,.10); --bad-bg:rgba(239,68,68,.08);
-    --info:#06B6D4;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.05);
-    --shadow:0 10px 15px rgba(0,0,0,.1), 0 4px 6px rgba(0,0,0,.05);
-  }
-  *{box-sizing:border-box}
+
+    *{box-sizing:border-box}
   html,body{height:100%}
   body{margin:0; background:var(--bg); color:var(--text); overflow:hidden;
-    font:15px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font:15px/1.55 var(--sho-font-family-sans);
     -webkit-font-smoothing:antialiased;}
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
   a{color:var(--accent)}
@@ -340,32 +1234,118 @@ const DATA = {
     goal:"Que cualquiera entienda de un vistazo qué hay en su carpeta: qué productos tiene, cómo funcionan, en qué estado están y dónde están los riesgos.",
     proposito:"Es un asistente que lee toda tu carpeta de trabajo y dibuja un tablero claro para entenderla sin saber programar.",
     salud:"aMedias",
-    tecnologias:["HTML/CSS/JS (sin librerías)","Comando de Claude Code","(Próximo) Node + Claude Agent SDK"],
+    tecnologias:["HTML/CSS/JS vanilla (sin librerías ni build)","Comando de Claude Code","Tokens @sho (design system)","Íconos Phosphor","DM Sans · IBM Plex Mono","(Próximo) Node + Claude Agent SDK + WebSocket"],
     decisiones:[
       "Arrancar con una versión de solo lectura, pero que se sienta como una app navegable.",
       "Detectar varios productos en una misma carpeta y no mezclar su información.",
       "Hablarle a un usuario que no programa: cero jerga y enseñar buenas prácticas.",
       "Un solo archivo que abrís con doble clic, sin instalar nada.",
+      "Adoptar un design system de tokens (@sho) embebido, sin romper el ‘autocontenido’.",
       "La versión que ejecuta acciones (Fase 2) usará un puente local + Agent SDK, con confirmación antes de tocar archivos."
     ],
     nodos:[
-      { id:"folder", nombre:"Tu carpeta", tipo:"Entrada", estado:"listo", x:60, y:120,
-        queHace:"Los archivos y documentos del proyecto que se leen.", archivos:["./"], tecnologias:["Archivos"], tareas:[] },
-      { id:"cmd", nombre:"El comando /entiendo", tipo:"Herramienta interna", estado:"listo", x:380, y:60,
-        queHace:"Lee la carpeta, la entiende y arma el tablero.", archivos:["~/.claude/commands/entiendo.md"], tecnologias:["Comando de Claude Code"], tareas:[] },
-      { id:"dash", nombre:"El tablero (esta app)", tipo:"Salida", estado:"listo", x:380, y:240,
-        queHace:"La app que estás usando: explica tu carpeta de un vistazo.", archivos:["dashboard.html"], tecnologias:["HTML/CSS/JS"], tareas:[] },
-      { id:"bridge", nombre:"Puente para ‘hacer cosas’", tipo:"Servicio (próximo)", estado:"falta", x:720, y:240,
-        queHace:"Permitirá que al tocar un botón, el asistente arregle el código de verdad y veas el resultado en vivo.",
-        archivos:["(todavía no existe)"], tecnologias:["Node","Claude Agent SDK","WebSocket"],
+      /* ── Fuentes (entradas) ── */
+      { id:"folder", nombre:"Tu carpeta de trabajo", tipo:"Entrada", estado:"listo", x:40, y:120,
+        queHace:"Todos los archivos y documentos del proyecto. El comando los recorre sin abrir node_modules, .git, dist ni build.",
+        archivos:["./","CLAUDE.md","README.md","docs/","commands/","examples/"], tecnologias:["Archivos del proyecto"], tareas:[] },
+      { id:"sesiones", nombre:"Registros de sesión", tipo:"Entrada", estado:"listo", x:40, y:430,
+        queHace:"Los archivos de registro de tus sesiones de Claude Code. De acá sale el cálculo de cuántos tokens gastaste.",
+        archivos:["~/.claude/projects/<carpeta>/*.jsonl"], tecnologias:["JSONL"], tareas:[] },
+
+      /* ── El comando /entiendo (pipeline) ── */
+      { id:"scan", nombre:"1 · Recorrer la carpeta", tipo:"Paso del comando", estado:"listo", x:360, y:40,
+        queHace:"Camina toda la carpeta y arma la lista de archivos, ignorando lo pesado (node_modules, .git, dist, build).",
+        archivos:["~/.claude/commands/entiendo.md"], tecnologias:["Comando de Claude Code"], tareas:[] },
+      { id:"detect", nombre:"2 · Detectar productos", tipo:"Paso del comando", estado:"listo", x:360, y:270,
+        queHace:"Separa los productos de las herramientas internas y de la infra/config. La info de cada producto no se mezcla con la de los demás.",
+        archivos:["plugin.json","CLAUDE.md","manifests"], tecnologias:["Heurísticas de manifests"], tareas:[] },
+      { id:"parse", nombre:"3 · Leer archivos clave", tipo:"Paso del comando", estado:"listo", x:700, y:40,
+        queHace:"Abre CLAUDE.md, README, manifests (package.json, requirements, pyproject), entrypoints, /commands, /agents, configs de MCP, docs y ADRs.",
+        archivos:["CLAUDE.md","package.json","docs/roadmap.md"], tecnologias:["Lectura de archivos"], tareas:[] },
+      { id:"tokens", nombre:"3b · Calcular costo de tokens", tipo:"Paso del comando", estado:"aMedias", x:700, y:430,
+        queHace:"Parsea los registros de sesión para estimar cuánto se gastó y dónde. Best-effort: si no hay datos, degrada con elegancia.",
+        archivos:["~/.claude/projects/.../*.jsonl"], tecnologias:["Parser JSONL"],
+        tareas:[ {id:"k1",titulo:"Precalcular totales y leer en streaming para no trabar con muchas sesiones",estado:"falta",origen:"roadmap: más adelante"} ] },
+      { id:"model", nombre:"4 · Construir el modelo", tipo:"Paso del comando", estado:"listo", x:1040, y:180,
+        queHace:"Arma el modelo del workspace por producto con todas las dimensiones: goal, piezas, estado, tareas, tech, decisiones, código muerto, tokens y riesgos.",
+        archivos:["(modelo en memoria)"], tecnologias:["Modelo del workspace"], tareas:[] },
+      { id:"generate", nombre:"5 · Generar el dashboard", tipo:"Paso del comando", estado:"listo", x:1380, y:180,
+        queHace:"Escribe un dashboard.html autocontenido (sin dependencias de build) y lo abre en tu navegador.",
+        archivos:["examples/dashboard.html"], tecnologias:["HTML/CSS/JS embebido"], tareas:[] },
+
+      /* ── La app (salida) ── */
+      { id:"dash", nombre:"El tablero (esta app)", tipo:"Salida", estado:"listo", x:1720, y:180,
+        queHace:"La app que estás usando. Explica tu carpeta de lo macro a lo micro con 6 vistas coordinadas.",
+        archivos:["examples/dashboard.html"], tecnologias:["HTML/CSS/JS vanilla"], tareas:[] },
+
+      /* ── Las 6 vistas (macro → micro) ── */
+      { id:"v_head", nombre:"Cabecera ejecutiva", tipo:"Vista", estado:"listo", x:2080, y:-280,
+        queHace:"El workspace de un vistazo: métricas, salud y resumen.", archivos:["dashboard.html"], tecnologias:["Vista"], tareas:[] },
+      { id:"v_map", nombre:"Mapa", tipo:"Vista", estado:"listo", x:2080, y:-70,
+        queHace:"Este lienzo: productos → piezas y sus conexiones, zoomeable (macro→micro).", archivos:["dashboard.html"], tecnologias:["Canvas + SVG"], tareas:[] },
+      { id:"v_board", nombre:"Tablero de tareas", tipo:"Vista", estado:"listo", x:2080, y:140,
+        queHace:"Estilo Trello: Falta / A medias / Listo, con un carril por producto.", archivos:["dashboard.html"], tecnologias:["Vista"], tareas:[] },
+      { id:"v_detail", nombre:"Detalle", tipo:"Vista", estado:"listo", x:2080, y:350,
+        queHace:"Al elegir una pieza: visión, archivos, tech, decisiones, tokens, salud y riesgos.", archivos:["dashboard.html"], tecnologias:["Drawer"], tareas:[] },
+      { id:"v_risk", nombre:"Riesgos & buenas prácticas", tipo:"Vista", estado:"listo", x:2080, y:560,
+        queHace:"El corazón educativo: qué pasa, por qué importa al crecer, cómo se hace bien y links.", archivos:["dashboard.html"], tecnologias:["Vista"], tareas:[] },
+      { id:"v_cost", nombre:"Costo de tokens", tipo:"Vista", estado:"listo", x:2080, y:770,
+        queHace:"Dónde se quemaron los tokens y las ‘malas decisiones caras’.", archivos:["dashboard.html"], tecnologias:["Vista"], tareas:[] },
+
+      /* ── Dependencias externas ── */
+      { id:"sho", nombre:"@sho · design system", tipo:"Dependencia", estado:"listo", x:1040, y:650,
+        queHace:"Los tokens visuales (color, tipografía, espacios, sombras) embebidos en la app. Definen el look claro/oscuro.",
+        archivos:["@sho/styles · tokens.css (embebido)"], tecnologias:["Tokens CSS","OKLCH"], tareas:[] },
+      { id:"phosphor", nombre:"Íconos Phosphor", tipo:"Dependencia", estado:"listo", x:1040, y:860,
+        queHace:"La librería de íconos (peso fill) que usa toda la interfaz. Se carga por CDN con degradación elegante.",
+        archivos:["@phosphor-icons/web (CDN)"], tecnologias:["Icon font"], tareas:[] },
+      { id:"fonts", nombre:"Tipografías", tipo:"Dependencia", estado:"listo", x:1380, y:650,
+        queHace:"DM Sans para la interfaz e IBM Plex Mono para código y rutas. Por CDN, con fallback al stack del sistema.",
+        archivos:["Google Fonts (CDN)"], tecnologias:["DM Sans","IBM Plex Mono"], tareas:[] },
+
+      /* ── Fase 2 · bidireccional (próximo) ── */
+      { id:"bridge", nombre:"Puente local", tipo:"Próximo (Fase 2)", estado:"falta", x:1720, y:560,
+        queHace:"Un servidor en tu propia compu que conecta la app con Claude para hacer cambios de verdad.",
+        archivos:["(todavía no existe)"], tecnologias:["Node","HTTP","WebSocket"],
         tareas:[ {id:"t1",titulo:"Construir el puente local (Node + Agent SDK)",estado:"falta",origen:"plan: Fase 2"},
-                 {id:"t2",titulo:"Conexión segura: solo localhost + confirmar antes de editar",estado:"falta",origen:"plan: Fase 2"},
-                 {id:"t3",titulo:"Encender los botones ‘Arreglar/Ajustar’ para que ejecuten",estado:"falta",origen:"plan: Fase 2"} ] }
+                 {id:"t2",titulo:"Seguridad: solo localhost + token + confirmar diff antes de editar",estado:"falta",origen:"plan: Fase 2"},
+                 {id:"t3",titulo:"Encender los botones ‘Arreglar/Ajustar’ para que ejecuten",estado:"falta",origen:"plan: Fase 2"} ] },
+      { id:"agentsdk", nombre:"Claude Agent SDK", tipo:"Próximo (Fase 2)", estado:"falta", x:1380, y:880,
+        queHace:"El motor que corre a Claude headless (query) y pide confirmación antes de tocar archivos (canUseTool).",
+        archivos:["@anthropic-ai/claude-agent-sdk"], tecnologias:["Agent SDK","query / canUseTool"],
+        tareas:[ {id:"t4",titulo:"Auth por créditos de suscripción (disp. 2026-06-15) con fallback a ANTHROPIC_API_KEY",estado:"falta",origen:"plan: Fase 2"} ] },
+      { id:"ws", nombre:"Tiempo real (WebSocket)", tipo:"Próximo (Fase 2)", estado:"falta", x:1720, y:830,
+        queHace:"Transmite el progreso en vivo (texto, uso de herramientas, diffs) de vuelta al navegador.",
+        archivos:["(todavía no existe)"], tecnologias:["WebSocket"], tareas:[] }
     ],
     edges:[
-      {from:"folder",to:"cmd",label:"la lee",kind:"done"},
-      {from:"cmd",to:"dash",label:"genera",kind:"done"},
-      {from:"bridge",to:"dash",label:"en vivo (próximo)",kind:"future"}
+      /* flujo del comando (hecho) */
+      {from:"folder",to:"scan",label:"recorre",kind:"done"},
+      {from:"scan",to:"detect",label:"archivos",kind:"done"},
+      {from:"detect",to:"parse",label:"por producto",kind:"done"},
+      {from:"parse",to:"model",label:"datos",kind:"done"},
+      {from:"detect",to:"model",label:"",kind:"done"},
+      {from:"sesiones",to:"tokens",label:"lee registros",kind:"done"},
+      {from:"tokens",to:"model",label:"costos",kind:"done"},
+      {from:"model",to:"generate",label:"modelo",kind:"done"},
+      {from:"generate",to:"dash",label:"escribe",kind:"done"},
+      /* la app renderiza sus 6 vistas */
+      {from:"dash",to:"v_head",label:"",kind:"done"},
+      {from:"dash",to:"v_map",label:"",kind:"done"},
+      {from:"dash",to:"v_board",label:"",kind:"done"},
+      {from:"dash",to:"v_detail",label:"6 vistas",kind:"done"},
+      {from:"dash",to:"v_risk",label:"",kind:"done"},
+      {from:"dash",to:"v_cost",label:"",kind:"done"},
+      /* dependencias externas estilizan la app */
+      {from:"sho",to:"dash",label:"estiliza",kind:"done"},
+      {from:"phosphor",to:"dash",label:"íconos",kind:"done"},
+      {from:"fonts",to:"dash",label:"tipografía",kind:"done"},
+      /* Fase 2 (próximo, punteado) */
+      {from:"dash",to:"bridge",label:"pide acciones",kind:"future"},
+      {from:"agentsdk",to:"bridge",label:"motor",kind:"future"},
+      {from:"bridge",to:"dash",label:"en vivo",kind:"future"},
+      {from:"ws",to:"dash",label:"streaming",kind:"future"},
+      {from:"bridge",to:"ws",label:"",kind:"future"}
     ]
   }],
   herramientasInternas:["El comando /entiendo (vive en ~/.claude/commands)"],
@@ -502,9 +1482,9 @@ cv.addEventListener("pointermove",e=>{ if(!panning)return; T.x=pox+(e.clientX-ps
 cv.addEventListener("pointerup",e=>{ panning=false; cv.classList.remove("grab"); });
 /* zoom */
 cv.addEventListener("wheel",e=>{ e.preventDefault(); const r=cv.getBoundingClientRect(); const mx=e.clientX-r.left,my=e.clientY-r.top;
-  const wx=(mx-T.x)/T.k, wy=(my-T.y)/T.k; const f=e.deltaY<0?1.12:1/1.12; T.k=Math.min(2.2,Math.max(.35,T.k*f)); T.x=mx-wx*T.k; T.y=my-wy*T.k; applyT(); },{passive:false});
+  const wx=(mx-T.x)/T.k, wy=(my-T.y)/T.k; const f=e.deltaY<0?1.12:1/1.12; T.k=Math.min(2.2,Math.max(.22,T.k*f)); T.x=mx-wx*T.k; T.y=my-wy*T.k; applyT(); },{passive:false});
 $("#zin").onclick=()=>zoomBtn(1.18); $("#zout").onclick=()=>zoomBtn(1/1.18);
-function zoomBtn(f){ const r=cv.getBoundingClientRect(),mx=r.width/2,my=r.height/2,wx=(mx-T.x)/T.k,wy=(my-T.y)/T.k; T.k=Math.min(2.2,Math.max(.35,T.k*f)); T.x=mx-wx*T.k; T.y=my-wy*T.k; applyT(); }
+function zoomBtn(f){ const r=cv.getBoundingClientRect(),mx=r.width/2,my=r.height/2,wx=(mx-T.x)/T.k,wy=(my-T.y)/T.k; T.k=Math.min(2.2,Math.max(.22,T.k*f)); T.x=mx-wx*T.k; T.y=my-wy*T.k; applyT(); }
 $("#zfit").onclick=fit;
 function fit(){
   if(!curNodes.length)return; const r=cv.getBoundingClientRect(); if(!r.width)return;
@@ -512,7 +1492,7 @@ function fit(){
   curNodes.forEach(n=>{ const e=world.querySelector(`.gnode[data-id="${CSS.escape(n.id)}"]`); const w=e?e.offsetWidth:230,h=e?e.offsetHeight:120;
     minx=Math.min(minx,n.x); miny=Math.min(miny,n.y); maxx=Math.max(maxx,n.x+w); maxy=Math.max(maxy,n.y+h); });
   const pad=70, gw=maxx-minx, gh=maxy-miny;
-  const k=Math.min(1.4,(r.width-pad*2)/gw,(r.height-pad*2)/gh); T.k=Math.max(.4,k);
+  const k=Math.min(1.4,(r.width-pad*2)/gw,(r.height-pad*2)/gh); T.k=Math.max(.25,k);
   T.x=(r.width-gw*T.k)/2-minx*T.k; T.y=(r.height-gh*T.k)/2-miny*T.k; applyT();
 }
 function drillInto(p){ S.level=p; S.selNode=null; S.selProd=p; buildGraph(); }
