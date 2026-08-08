@@ -22,19 +22,34 @@ No es un reporte que se scrollea. Es una **app que se navega**: barra lateral, v
 
 > **Diseño centrado en el usuario no técnico.** UX fundamentada en las heurísticas de Nielsen, diseño de interacción y arquitectura de la información (overview-first de Shneiderman, progressive disclosure, vistas coordinadas).
 
-## 🚀 Instalación
+## 🧱 Cómo está armado (template + DATA)
 
-**Opción A — copiar el comando (lo más rápido):**
-
-```bash
-mkdir -p ~/.claude/commands
-curl -fsSL https://raw.githubusercontent.com/jose-villegas-0/entiendo/main/commands/entiendo.md \
-  -o ~/.claude/commands/entiendo.md
+```
+dashboard.html  =  template/shell.html  (UI fija)  +  DATA JSON  (modelo de tu carpeta)
 ```
 
-O cloná el repo y copiá `commands/entiendo.md` a `~/.claude/commands/`.
+- **`template/shell.html`** — la app (mapa, tareas, riesgos, costos, chat). No se regenera por proyecto.
+- **`schema/workspace.schema.json`** — contrato del objeto `DATA`.
+- **`scripts/validate.mjs` / `scripts/assemble.mjs`** — validar el modelo y armar el HTML.
+- **`commands/entiendo.md`** — el comando: explora tu carpeta, genera **solo** el DATA, valida y ensambla.
 
-**Opción B — como plugin de Claude Code:** este repo incluye `.claude-plugin/plugin.json`, así que podés instalarlo desde un marketplace/repo de plugins.
+Así cada corrida de `/entiendo` no reescribe la UI: solo actualiza el modelo.
+
+## 🚀 Instalación
+
+**Recomendado — clonar / plugin (incluye shell + schema):**
+
+```bash
+git clone https://github.com/jose-villegas-0/entiendo.git
+# Opción A: copiar el comando
+mkdir -p ~/.claude/commands
+cp entiendo/commands/entiendo.md ~/.claude/commands/
+# El comando buscará template/ junto al repo o lo bajará de GitHub si hace falta.
+```
+
+**Opción B — como plugin de Claude Code:** este repo incluye `.claude-plugin/plugin.json`.
+
+**Solo el markdown** (mínimo): podés copiar `commands/entiendo.md`, pero para ensamblar bien hace falta el `template/shell.html` (el comando intenta bajarlo de este repo como respaldo).
 
 ## 🧑‍💻 Uso
 
@@ -44,16 +59,23 @@ Parate en cualquier carpeta de proyecto y, dentro de Claude Code, escribí:
 /entiendo
 ```
 
-El comando lee la carpeta, sintetiza el modelo y genera `dashboard.html` en la raíz, abriéndolo en tu browser. Mirá un ejemplo generado en [`examples/dashboard.html`](examples/dashboard.html).
+El comando lee la carpeta, escribe el **DATA**, lo valida y genera `dashboard.html` en la raíz. Ejemplo: [`examples/dashboard.html`](examples/dashboard.html) (armado desde [`examples/data/entiendo.workspace.json`](examples/data/entiendo.workspace.json)).
+
+### Desarrollo del shell / contrato
+
+```bash
+node scripts/validate.mjs examples/data/entiendo.workspace.json fixtures/minimal.workspace.json
+node scripts/assemble.mjs examples/data/entiendo.workspace.json -o examples/dashboard.html
+```
 
 ## 🗺️ Roadmap
 
-- **v1 — lectura (actual):** la app que entiende y explica tu carpeta. Los botones "Arreglar / Ajustar / Explicar" y el chat **te muestran cómo** (best practices), todavía no ejecutan.
-- **Fase 2 — bidireccional:** un puente local en Node + el [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk) hace que esos mismos controles **ejecuten de verdad** sobre el código (resolver TODOs, agregar tests, refactorizar), con confirmación por diff. Detalle en [`docs/roadmap.md`](docs/roadmap.md).
+- **v1 — lectura (actual):** shell fijo + DATA validado. Los botones y el chat **te muestran cómo**, no ejecutan.
+- **Fase 2 — bidireccional:** puente local + [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk). Detalle en [`docs/roadmap.md`](docs/roadmap.md).
 
 ## 🤝 Contribuir
 
-¡Bienvenidas las contribuciones! Mirá [`CONTRIBUTING.md`](CONTRIBUTING.md). Ideas con buen punto de entrada: mejorar el auto-layout del lienzo, un mini-mapa, más detectores de riesgos, y arrancar la Fase 2.
+¡Bienvenidas las contribuciones! Mirá [`CONTRIBUTING.md`](CONTRIBUTING.md). Buenos puntos de entrada: auto-layout del lienzo, mini-mapa, más detectores de riesgos, mejorar el parseo de tokens, y endurecer el schema — **antes** de la Fase 2.
 
 ## 📄 Licencia
 

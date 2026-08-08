@@ -4,260 +4,264 @@ description: Lee TODA la carpeta de trabajo y genera un dashboard que un humano 
 
 # /entiendo — tu carpeta de trabajo, explicada para humanos
 
-Tu misión NO es volcar datos. Es construir una **capa de inteligencia visual sobre toda la
-carpeta de trabajo** para que una persona **sin conocimientos técnicos** entienda, de lo macro
-a lo micro:
+Tu misión NO es volcar datos ni rediseñar la UI. Es **entender la carpeta** y producir un
+`dashboard.html` que una persona **sin conocimientos técnicos** pueda navegar de lo macro a lo micro:
 
-> *"Mi carpeta tiene estos productos. Cada uno tiene estos agentes/servicios. Este es el goal
-> de cada uno. Estas decisiones tomé. Estos archivos y tecnologías hay. En qué estado están las
-> tareas. Qué no sirve o me consume tokens de más. Y dónde tengo riesgos de seguridad o de
-> escala — y cómo se arreglan bien."*
+> *"Mi carpeta tiene estos productos. Cada uno tiene estas piezas. Este es el goal de cada uno.
+> Estas decisiones tomé. En qué estado están las tareas. Qué no sirve o me consume tokens de más.
+> Y dónde tengo riesgos — y cómo se arreglan bien."*
 
 Pensá como el mejor diseñador de producto del mundo explicándole a su mamá el sistema que
 construyó su hijo: claridad brutal, cero jerga, belleza funcional, y enseñando en el camino.
 
-**Reglas de oro que atraviesan TODO:**
-- El usuario es **NO técnico**. Diseñá para SU modelo mental, no para el del programador.
-- **La carpeta puede tener VARIOS productos** + herramientas/agentes internos. NO mezcles la
-  información entre ellos. Separación coherente según la estructura de carpetas.
-- Es de lo **macro a lo micro**: overview primero, después zoom, después detalle (Shneiderman).
-- **Enseñá, no asustes.** Ante cada riesgo, mostrá la best practice y por qué importa al crecer.
+## Arquitectura (no negociable)
+
+```
+dashboard.html  =  template/shell.html  (FIJO)  +  DATA  (lo único que generás)
+```
+
+| Pieza | Quién la toca | Qué es |
+|-------|---------------|--------|
+| **Shell** (`template/shell.html`) | Nadie en runtime. Solo se evoluciona en el repo entiendo. | App: layout, CSS, design system, mapa, tablero, chat, tema. |
+| **DATA** (JSON del contrato) | **Solo esto generás vos** por cada carpeta. | Modelo del workspace: productos, nodos, tareas, riesgos, tokens. |
+| **Contrato** (`schema/workspace.schema.json`) | Referencia + validación. | Forma y enums del DATA. |
+| **Ensamble** (`scripts/assemble.mjs`) | Lo usás si hay Node; si no, inyectás a mano. | `shell + DATA → dashboard.html`. |
+
+**PROHIBIDO:** reescribir CSS/JS del shell, inventar otro layout, o mezclar narrativa adentro de
+estilos. Si el shell no está disponible, **traelo** (ver Paso 5); no improvises una app distinta.
+
+**Reglas de oro:**
+- Usuario **NO técnico** — cero jerga sin traducir.
+- **Varios productos** posibles — nunca mezclar tareas/riesgos/tokens entre ellos.
+- **Macro → micro** (Shneiderman).
+- **Enseñá, no asustes** — todo riesgo grave trae best practice.
 
 ---
 
-## Tu marco mental (entrenate en esto ANTES de generar nada)
+## Tu marco mental (ANTES de generar nada)
 
 Aplicá estos cuerpos de conocimiento; no los menciones en el dashboard.
 
-### 10 heurísticas de Nielsen (chequealas al final, una por una)
-1. **Visibilidad del estado** — siempre se sabe dónde se está, qué significa cada color/badge. Leyenda visible.
-2. **Lenguaje del mundo real** — cero jerga. Traducí TODO término técnico a su función real.
-3. **Control y libertad** — expandir/colapsar, volver, cerrar; navegar entre vistas sin trabarse.
-4. **Consistencia** — mismos colores/íconos/significados en todo el documento.
-5. **Prevención de errores** — navegación a prueba de clics; nada rompe la vista.
-6. **Reconocer en vez de recordar** — todo lo necesario visible o a un clic.
-7. **Flexibilidad y eficiencia** — resumen ejecutivo arriba + detalle abajo (progressive disclosure).
-8. **Estético y minimalista** — solo lo que aporta; aire generoso.
-9. **Ayudar a entender** — cada sección con una micro-intro de 1 frase: qué estás mirando y por qué importa.
-10. **Ayuda y documentación** — tooltips/notas para cualquier término inevitable; links a best practices.
+### 10 heurísticas de Nielsen (chequeo final)
+1. Visibilidad del estado · 2. Lenguaje del mundo real · 3. Control y libertad · 4. Consistencia ·
+5. Prevención de errores · 6. Reconocer en vez de recordar · 7. Flexibilidad · 8. Estético y
+minimalista · 9. Ayudar a entender · 10. Ayuda contextual.
 
-### Diseño Centrado en el Usuario (UCD)
-Empezá por su pregunta real: *"¿Qué es esto y funciona?"* — respondela en los primeros 3 segundos.
-Traducí cada concepto técnico a su impacto en el mundo real (ver reglas de traducción abajo).
-
-### Diseño de Interacción (IxD)
-Affordances claras (lo accionable se ve accionable), feedback inmediato (hover, transiciones
-150–250ms), microinteracciones que comunican (resaltar conexiones al hover, vistas que se filtran
-entre sí). Nada de movimiento gratuito.
-
-### Arquitectura de la Información (IA)
-Jerarquía en pirámide invertida, chunking (5–7 ítems), progressive disclosure, etiquetas que un
-niño entendería, navegación sticky (findability), y **vistas coordinadas**: seleccionar algo en
-una vista filtra las demás.
-
-### Instructional design (porque el usuario aprende mientras navega)
-Mucha gente programa sin buenas prácticas y se rompe al escalar. Cuando muestres un riesgo grave
-(seguridad/escala), seguí SIEMPRE este patrón:
-**"Qué pasa" → "Por qué importa (sobre todo si crece el uso)" → "Cómo se hace bien" → links de contexto.**
+### UCD / IxD / IA / Instructional design
+- Respuesta en 3 segundos: *"¿Qué es esto y funciona?"*
+- Affordances claras; feedback 150–250ms; progressive disclosure; vistas coordinadas.
+- Ante riesgo grave: **"Qué pasa → Por qué importa (al crecer) → Cómo se hace bien → pasos → links"**.
 
 ---
 
-## Paso 1 — Explorar TODA la carpeta y detectar múltiples productos
-Recorré la carpeta SIN entrar en `node_modules`, `.git`, `dist`, `build`, `.next`, `vendor`,
-`__pycache__`, `.venv`, `target`, `coverage`.
+## Paso 1 — Explorar TODA la carpeta y detectar productos
 
-**Detectá cuántos productos/proyectos hay** (no asumas uno solo). Señales:
-- Varios manifests (`package.json`, `pyproject.toml`, `requirements.txt`, `go.mod`, `Cargo.toml`).
-- Varias raíces `.git` o submódulos.
-- Subcarpetas top-level con su propio README/CLAUDE.md y estructura coherente.
+Recorré SIN entrar en: `node_modules`, `.git`, `dist`, `build`, `.next`, `vendor`, `__pycache__`,
+`.venv`, `target`, `coverage`.
 
-**Clasificá cada cosa** en una de tres categorías (esta separación es el corazón del producto):
-- **Producto** — lo que se está construyendo, de cara al usuario final.
-- **Herramienta / agente interno** — comandos, skills, agentes, scripts, MCPs que apoyan el
-  trabajo pero NO son el producto.
-- **Infra / config** — CI, configs, infra compartida.
+**Árbol de decisión (multi-producto):**
 
-Si hay una sola cosa, está bien: un workspace de un producto. Si hay varias, mantené TODO
-separado por producto de acá en adelante (tareas, riesgos, tokens, archivos).
+| Señal | Clasificación |
+|-------|----------------|
+| Un solo manifest en raíz + un README/CLAUDE.md coherente | **1 producto** |
+| `apps/`, `packages/`, o varios manifests en subcarpetas con README propio | **N productos** (uno por unidad coherente) |
+| Solo `commands/`, `agents/`, `skills/`, scripts de apoyo | **Herramientas internas**, no productos |
+| CI, `.github/`, infra compartida, configs globales | **Infra / config** |
+| Repo que es el plugin *entiendo* en sí | 1 producto (`entiendo`) + herramientas (`/entiendo`) |
 
-## Paso 2 — Leer archivos clave (por cada producto y para las herramientas internas)
-Leé en profundidad si existen: `CLAUDE.md`, `README*`, todo `.md` de raíz y `/docs`; manifests
-de dependencias; puntos de entrada (`main.*`, `index.*`, `app.*`, `server.*`) y rutas/handlers;
-carpetas `/commands`, `/agents`, `/prompts`, `/skills`, `/src`, `/api`, `/lib`; configs de MCP
-(`.mcp.json`, `mcp_config.json`, `claude_desktop_config.json`); `.env.example` para integraciones;
-ADRs/decisiones si hay; historial de git si aplica.
+Clasificá cada unidad en: **Producto** | **Herramienta interna** | **Infra**.  
+Si hay una sola cosa, un workspace de un producto está bien. Si hay varias, **separá todo** de acá en más.
 
-## Paso 3 — Construir el modelo del workspace (separado por producto)
-Armá internamente este modelo. **Cada producto lleva SU propia info; nada se mezcla.**
+## Paso 2 — Leer archivos clave (por producto + herramientas)
 
+Leé si existen: `CLAUDE.md`, `README*`, `.md` de raíz y `/docs`; manifests; entrypoints
+(`main.*`, `index.*`, `app.*`, `server.*`); `/commands`, `/agents`, `/prompts`, `/skills`, `/src`,
+`/api`, `/lib`; MCP configs; `.env.example`; ADRs; git log reciente si ayuda.
+
+## Paso 3 — Construir SOLO el modelo DATA
+
+Escribí un objeto que cumpla el contrato (`schema/workspace.schema.json`, versión `1.0.0`).
+**Cada producto lleva SU info; nada se mezcla.**
+
+### Forma canónica
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "nombre": "nombre-del-workspace",
+  "resumen": "1–2 frases humanas: qué es esta carpeta.",
+  "productos": [
+    {
+      "id": "id-unico",
+      "nombre": "Nombre legible",
+      "goal": "1 frase como la diría el dueño a un amigo",
+      "proposito": "Para qué sirve, en lenguaje simple",
+      "salud": "listo | aMedias | falta",
+      "tecnologias": ["…"],
+      "decisiones": ["…"],
+      "nodos": [
+        {
+          "id": "n1",
+          "nombre": "Pieza",
+          "tipo": "Entrada | Paso | Servicio | Agente | Salida | …",
+          "queHace": "1 frase humana",
+          "estado": "listo | aMedias | falta",
+          "x": 40,
+          "y": 120,
+          "archivos": ["ruta"],
+          "tecnologias": ["…"],
+          "tareas": [
+            { "id": "t1", "titulo": "…", "estado": "falta", "origen": "archivo:línea" }
+          ]
+        }
+      ],
+      "edges": [
+        { "from": "n1", "to": "n2", "label": "qué viaja", "kind": "done" }
+      ]
+    }
+  ],
+  "herramientasInternas": ["…"],
+  "riesgos": [
+    {
+      "id": "r1",
+      "tipo": "seguridad | escala | codigoMuerto | deuda",
+      "severidad": "alta | media | baja",
+      "titulo": "…",
+      "dondeEsta": "…",
+      "explicacion": "Qué pasa",
+      "why": "Por qué importa al crecer",
+      "fix": "Cómo se hace bien",
+      "pasos": ["paso 1", "paso 2"],
+      "links": [{ "t": "título", "u": "https://…" }]
+    }
+  ],
+  "tokens": null
+}
 ```
-workspace { nombre, resumen(1 frase), productos[], herramientasInternas[], tokens, riesgos[] }
-producto  { id, nombre, goal(1 frase como la diría el dueño), proposito, servicios[], agentes[],
-            decisiones[], tecnologias[], tareas[], archivos[], tokens, salud, riesgos[] }
-nodo (servicio/agente) { id, nombre, queHace(humano, 1 frase), estado(listo|aMedias|falta),
-            conexiones[(origen→destino, quéViaja)], archivos[], tareas[], tokens, riesgos[] }
-tarea  { id, titulo, estado(falta|aMedias|listo), productoId, origen(archivo:línea) }
-riesgo { id, tipo(seguridad|escala|codigoMuerto|deuda), severidad(alta|media|baja), dondeEsta,
-            explicacionSimple, bestPractice{ queEs, comoSeArreglaBien, pasos[], links[] },
-            accionSugerida }
-tokens { total, porProducto{}, porSesion[], malasDecisiones[] }
-```
 
-### Cómo obtener cada dimensión
-- **Goals / decisiones / propósito / narrativa**: inferí de docs, CLAUDE.md, ADRs, comentarios,
-  commits. El `goal` es 1 frase como la diría el dueño a un amigo.
-- **Estado** (listo / a medias / falta): inferí de TODOs, funciones vacías, stubs, prompts sin
-  terminar, archivos esqueleto, tests faltantes.
-- **Tareas / pendientes**: TODO, FIXME, HACK, "pendiente", comentarios sin resolver → cada uno con
-  su `productoId` y `origen` (archivo:línea). **Nunca mezcles tareas de productos distintos.**
-- **Tecnologías**: stack por producto (lenguajes, frameworks, librerías, servicios, MCPs).
-- **Consumo de tokens**: intentá leer los logs de sesión de Claude Code en
-  `~/.claude/projects/<carpeta-encoded>/*.jsonl` (la carpeta es la ruta absoluta con los
-  caracteres no alfanuméricos reemplazados por `-`). Ahí hay `usage`/costo por turno. Sumá el
-  gasto, atribuilo por sesión y, si podés, por producto; marcá "malas decisiones caras" (sesiones
-  que churnean mucho sin aterrizar cambios). **Best-effort**: si no hay logs o el formato no
-  coincide, dejá el panel con un estado vacío amable ("Todavía no hay datos de uso para mostrar").
-- **Código muerto / que no sirve**: heurística (stubs, funciones vacías, archivos huérfanos,
-  imports rotos, duplicados) + tu juicio. Marcalo como **"candidato"** (puede haber falsos
-  positivos) para no asustar.
-- **Debilidades / seguridad / escala**: detectá riesgos reales — secretos hardcodeados, falta de
-  validación de entrada, inyección, N+1 queries, falta de paginación/índices, sin rate limit, sin
-  manejo de errores, secretos en el repo, etc. Cada riesgo grave DEBE traer su `bestPractice`.
+### Dimensiones — cómo obtenerlas
 
-### Reglas de traducción técnico → humano (OBLIGATORIO)
-Nunca dejes un término crudo; traducí y, si hace falta, dejá el término técnico chico entre
-paréntesis. Estándar esperado:
-- "API REST" → "la forma en que el sistema pide y entrega datos a otros sistemas"
-- "base de datos" → "donde se guarda y recuerda toda la información"
+- **Goals / decisiones / propósito:** docs, CLAUDE.md, ADRs, commits. Goal = 1 frase del dueño.
+- **Estado** (`listo` / `aMedias` / `falta`): TODOs, stubs, tests faltantes, prompts a medias.
+- **Tareas:** TODO, FIXME, HACK, "pendiente" → con `origen` archivo:línea. IDs únicos en todo el workspace.
+- **Nodos + edges:** el pipeline contado como historia ("entra → procesa → sale"). Coordenadas `x,y`
+  espaciadas (~300px en X). `kind: "future"` para piezas planeadas (arista punteada).
+- **Tecnologías:** stack real por producto, en lenguaje amable cuando se muestre en UI.
+- **Tokens:** leé `~/.claude/projects/<carpeta-encoded>/*.jsonl` (ruta absoluta con no-alfanuméricos
+  → `-`). Si hay datos: objeto con al menos `facturable`, idealmente `input`, `output`, `cacheWrite`,
+  `cacheRead`, `sesiones`, `turnos`, `modelo`, `insight`. Si no hay: **`tokens: null`** (el shell
+  muestra estado vacío amable). Nunca inventes números.
+- **Código muerto:** candidatos (stubs, huérfanos); tipo de riesgo `codigoMuerto` si aplica.
+- **Riesgos:** reales (secretos, validación, N+1, sin rate limit, etc.). Severidad `alta` **obliga**
+  `why` + `fix` + `pasos[]`.
+
+### Enums (exactos)
+
+- estado/salud: `listo` | `aMedias` | `falta`
+- severidad: `alta` | `media` | `baja`
+- tipo riesgo: `seguridad` | `escala` | `codigoMuerto` | `deuda`
+- edge.kind: `done` | `future`
+
+### Traducción técnico → humano (obligatoria en textos de UI)
+
+Nunca dejes jerga cruda en `goal`, `proposito`, `queHace`, títulos de riesgo:
+- "API REST" → "la forma en que el sistema pide y entrega datos"
 - "autenticación" → "el control que decide quién puede entrar"
-- "endpoint `/users`" → "la puerta por donde se piden los usuarios"
 - "webhook" → "un aviso automático cuando pasa algo"
 - "agente" → "un asistente automático que se encarga de una tarea"
 - "deploy" → "publicar el proyecto para que la gente lo use"
-- "MCP" → "un conector que le da herramientas/superpoderes al asistente"
-- "N+1 / sin índice" → "consultas que funcionan con pocos datos pero se vuelven lentísimas al crecer"
-Cada pieza debe poder leerse en voz alta y entenderse sin saber programar.
+- "MCP" → "un conector que le da herramientas al asistente"
+- "N+1 / sin índice" → "consultas que con pocos datos van bien y al crecer se vuelven lentísimas"
 
-## Paso 4 — Es una APP que se navega, NO un reporte que se scrollea
-Esto es lo más importante de toda la experiencia. El resultado NO puede ser una página de
-secciones apiladas. Tiene que sentirse como una **aplicación**: un shell fijo (que ocupa toda
-la pantalla, sin scroll de página) con **barra lateral** + **un área principal que cambia de
-vista**, no que se baja con la rueda.
+### Gate de validación del DATA (antes de ensamblar)
 
-**Layout de app (obligatorio):**
-- **Barra superior (topbar)**: marca + **breadcrumb** (Workspace › Producto › …) + toggle de tema.
-- **Barra lateral (sidebar)**: un conmutador de **vistas** (Mapa / Tareas / Riesgos / Costos) y
-  abajo la lista de **productos** (clic = enfocar ese producto). Es la navegación principal.
-- **Área principal**: muestra UNA vista a la vez (se conmuta, no se scrollea entre ellas). Las
-  vistas que tengan mucho contenido scrollean internamente, no la página entera.
-- **Panel lateral de detalle (drawer)**: se desliza desde la derecha al seleccionar una pieza.
-- **Chat dock** flotante y **persistente entre vistas** (vive fuera de las vistas).
+Corrí mentalmente (y con Node si podés: `node scripts/validate.mjs <data.json>`):
 
-**Las vistas (todas leen el MISMO modelo; seleccionar filtra el resto — macro→micro):**
-1. **🗺️ Mapa — la vista estrella, un LIENZO de nodos interactivo** (estilo n8n / LangGraph),
-   NO una grilla de cards. Debe tener de verdad:
-   - **Pan** (arrastrar el fondo), **zoom** (rueda + botones +/− y "encajar/fit").
-   - **Nodos arrastrables**; **aristas** (flechas/curvas SVG) que se recalculan al mover nodos.
-   - **Hover** sobre un nodo: resalta sus conexiones y atenúa el resto.
-   - **Macro→micro**: en el nivel workspace los nodos son los productos; **doble clic entra** a
-     un producto y muestra sus servicios/agentes como sub-grafo; el breadcrumb permite volver.
-     Si hay un solo producto, entrá directo a su grafo (un nodo suelto se ve pobre).
-   - Leyenda de colores visible; aristas "futuras" punteadas.
-2. **📋 Tareas** (estilo Trello) — columnas **Falta / A medias / Listo**, con un **carril
-   (swimlane) por producto**. Nunca mezclar tareas entre productos.
-3. **⚠️ Riesgos & Best Practices** — lista priorizada por severidad; cada riesgo con
-   **"Qué pasa" → "Por qué importa (al crecer)" → "Cómo se hace bien" → pasos → links**. El
-   corazón educativo del producto.
-4. **💸 Costos (tokens)** — dónde se quemaron, por producto y por sesión, y "malas decisiones
-   caras". Si no hay datos, estado vacío amable.
+1. ≥ 1 producto; cada uno ≥ 1 nodo.
+2. IDs únicos: productos, nodos (por producto), tareas (global), riesgos (global).
+3. Todo `edges.from` / `edges.to` existe en los nodos del **mismo** producto.
+4. Ninguna tarea de un producto aparece en otro.
+5. Riesgos `alta` tienen `why`, `fix`, `pasos` (≥1).
+6. `tokens` es `null` o un objeto con `facturable` numérico (no inventado).
+7. Textos legibles en voz alta por alguien que no programa.
 
-El **detalle** de cualquier pieza (visión, qué hace, archivos, tecnologías, decisiones, tokens,
-estado, riesgos + botones de acción + chat) vive en el **drawer**, no en una sección aparte.
+Persistí el JSON temporalmente si ayuda (p.ej. `/tmp/entiendo-workspace.json`) para validar/ensamblar.
 
-## Paso 5 — Generar `dashboard.html`
-Creá UN solo archivo `dashboard.html` autocontenido en la raíz de la carpeta:
-**HTML + CSS + JS embebidos, SIN dependencias externas** (funciona offline con doble clic). Poné
-el modelo del workspace como un objeto JS al inicio y renderizá de forma declarativa a partir de él.
+## Paso 4 — Encontrar el shell fijo
 
-**Estructura técnica del app shell (vanilla JS, sin librerías):**
-- `body{overflow:hidden}` + layout `grid` a `100vh` (topbar / sidebar / main). Nada de scroll de página.
-- Conmutador de vistas: cada vista es un `section.view`; solo la activa se muestra (`display`).
-- Lienzo: un contenedor `.canvas` con un `.world` interno al que se le aplica
-  `transform: translate(x,y) scale(k)`. Pan = `pointerdown/move` sobre el fondo; zoom = `wheel`
-  centrado en el cursor + botones; "fit" calcula el encuadre de todos los nodos. Nodos
-  arrastrables con `pointer events` (actualizando sus coords y redibujando aristas). Aristas en
-  una capa `<svg>` dentro de `.world`, con paths bezier y `vector-effect:non-scaling-stroke`.
-- Drawer derecho con `transform:translateX(105%)` ↔ `0`. Chat dock `position:fixed`.
-- Respetar `prefers-reduced-motion`; foco visible; navegable por teclado; contraste AA.
+Buscá `template/shell.html` en este orden:
 
-### Sistema visual (entiendo design system v1 — claridad radical, no glassmorphism)
-- **Dark mode por defecto** con toggle a light que persista (localStorage). Ambos modos cumplen AA.
-- **Minimalismo deliberado**: superficies planas, sin gradientes decorativos, sin `backdrop-filter`,
-  sin glow ni sombras pesadas. Las sombras son sutiles y solo en overlays (drawer, dock, modal, popover).
-- **Paleta (azul profesional)** — tokens:
-  - Dark (azul casi negro, tinte slate): `--bg #070B16`, `--bg2 #0B1020`, `--surface #11182B`,
-    `--surface2 #1C2740`, `--surface3 #2A3A5C`, `--text #F8FAFC`, `--muted #94A3B8`,
-    `--faint #64748B`, `--accent #60A5FA`, borde `rgba(148,163,184,.14)`.
-  - Light: `--bg #F9FAFB`, `--surface #FFFFFF`, `--surface2 #F3F4F6`, `--text #111827`,
-    `--muted #4B5563`, `--faint #9CA3AF`, `--accent #3B82F6`, borde `#E5E7EB`.
-- **Colores semánticos** (siempre color + ícono + texto, nunca solo color):
-  `success` verde = listo, `warning` ámbar = a medias, `error` rojo = falta/riesgo alto, `info` cian.
-  Dark: `#34D399 / #FBBF24 / #F87171 / #22D3EE` · Light: `#10B981 / #F59E0B / #EF4444 / #06B6D4`.
-- **Tipografía**: **Inter** (UI) + **IBM Plex Mono** (código, rutas, métricas). Escala:
-  Display 32–40px, Heading 18–24px, Body 14–16px, Label 12px. Weights 400/500/600, 700 solo énfasis crítico.
-- **Spacing**: escala 4/8/12/16/24/32/48px. Cards padding 20px, panel lateral 16px, navbar 56px.
-- **Radius**: `sm 4px` (inputs/botones chicos), `md 8px` (cards/modales), `lg 12px` (paneles), `full` (badges).
-- **Sombras** (sutiles): `sm 0 1px 2px`, `lg 0 10px 15px + 0 4px 6px` — alpha .3–.4 en dark, .05–.1 en light.
-- **Transiciones** 150ms (estados) a 300ms (cambios de vista), easing `cubic-bezier(.4,0,.2,1)`.
-- Cargar Inter + IBM Plex Mono vía Google Fonts con **fallback a system stack** para que funcione offline.
+1. **Repo / plugin local:** relativo al plugin entiendo  
+   (`…/entiendo/template/shell.html`, o junto a este comando en el checkout del repo).
+2. **Este workspace** si el usuario está dentro del repo entiendo: `./template/shell.html`.
+3. **Descarga de respaldo** (misma fuente que la instalación del comando):
+   `https://raw.githubusercontent.com/jose-villegas-0/entiendo/main/template/shell.html`
+4. Si nada funciona: avisá al usuario que instale el plugin/repo completo; **no inventes otro shell**.
 
-### Interacción y movimiento (IxD)
-- Aparición escalonada de cards al cargar (fade+slide, stagger ~40ms), respetando `prefers-reduced-motion`.
-- Hover en nodos: elevar + resaltar conexiones, atenuar el resto.
-- Selección coordinada: clic en un producto/nodo filtra tablero, detalle y riesgos a ese contexto.
-- Zoom del mapa: workspace → producto → servicio, con "volver" siempre visible.
-- Transiciones suaves 150–250ms; estados de foco visibles (teclado).
+El shell debe contener el marcador `/*__ENTIENDO_DATA__*/`. No lo borres ni lo renombres.
 
-### Accesibilidad (parte de la calidad)
-Contraste AA; significado nunca solo por color; HTML semántico (`header`, `nav`, `main`, `section`,
-`h1–h3`); navegable por teclado; `aria-label` donde haga falta; `prefers-reduced-motion` respetado.
+## Paso 5 — Ensamblar `dashboard.html` en la raíz del workspace
 
-### Capa UX lista para bidireccionalidad (en v1 EDUCA, no ejecuta)
-La versión que "hace cosas" llega después; la UX queda lista ahora para no rediseñar nada.
-- **Botones de acción** en lenguaje no técnico, presentes en el detalle de cada nodo, en cada
-  tarea y en cada riesgo: **"Arreglar esto"**, **"Ajustar esto"**, **"Mejorar esto"**,
-  **"Explicámelo"**. En v1 abren un panel con la **best practice + pasos + links** (rotulá sutil
-  "Te muestro cómo"). Diseñalos para que en Fase 2 pasen de "te muestro cómo" a "lo hago".
-- **Chat dock cross-pantalla** — una barra/burbuja persistente, fija, que viaja con el usuario por
-  TODAS las vistas y **muestra el contexto de lo que está mirando** ("Estás viendo: Producto X →
-  Servicio Y"). En v1 responde desde el modelo ya embebido (respuestas guiadas, sin LLM): puede
-  contestar "¿dónde están mis riesgos?", "¿qué falta en el producto X?", "¿qué me consume tokens?"
-  filtrando los datos embebidos, y ofrece accesos rápidos ("Arreglar esto") que abren la best
-  practice. Dejá claro y elegante que la conversación real con Claude llega pronto.
-- Affordances claras: todo lo accionable se ve accionable y enlaza a su contexto/best practice.
+**Preferido (Node disponible):**
 
-### El mapa y el pipeline — hacelos memorables
-El mapa cuenta cómo funciona cada producto como una historia: "Entra esto → acá se procesa → se
-consulta aquello → sale esto". Numerá los pasos, poné íconos, flechas claras. Si hay ramas o
-agentes, mostralo. Si el flujo no es evidente, inferí el más probable y marcálo como inferido.
+```bash
+node /ruta/al/plugin/scripts/assemble.mjs /tmp/entiendo-workspace.json -o dashboard.html
+# o, si estás en el repo entiendo:
+node scripts/assemble.mjs examples/data/….json -o dashboard.html
+```
 
-## Paso 6 — Autorevisión (gate de calidad, antes de abrir)
-Recorré mentalmente y corregí lo que falle:
-- ¿Un no técnico entiende qué es el workspace en 3 segundos?
-- ¿Los productos están bien detectados y **separados** (tareas/tokens/riesgos sin mezclar)?
-- ¿Hay jerga sin traducir? ¿La leyenda de colores está visible y es consistente?
-- ¿El mapa se lee como una historia y se puede ir de macro a micro?
-- ¿Cada riesgo grave trae "qué pasa / por qué importa / cómo se hace bien / links"?
-- ¿El panel de tokens muestra datos o degrada elegante?
-- ¿Los botones de acción y el chat dock están presentes, son cross-pantalla y reflejan el contexto?
-- ¿Funcionan toggle de tema, nav sticky, teclado, reduced-motion?
+`assemble.mjs` valida el DATA y escribe el HTML.
+
+**Sin Node:** leé el shell completo, reemplazá
+
+```js
+const DATA = /*__ENTIENDO_DATA__*/ null;
+```
+
+por
+
+```js
+const DATA = /*__ENTIENDO_DATA__*/ { …tu JSON válido… };
+```
+
+(el JSON debe ser expresión JS válida: comillas dobles, sin trailing comments raros) y escribí
+`dashboard.html` en la **raíz de la carpeta del usuario**.
+
+No regeneres el shell. No copies a mano miles de líneas de CSS.
+
+## Paso 6 — Autorevisión (gate de calidad)
+
+- ¿Un no técnico entiende el workspace en 3 segundos (resumen + productos en sidebar)?
+- ¿Productos bien detectados y **separados**?
+- ¿Sin jerga cruda en textos visibles?
+- ¿El mapa cuenta una historia (edges con labels útiles)?
+- ¿Riesgos graves con el patrón educativo completo?
+- ¿Tokens reales o `null` (vacío amable), nunca inventados?
+- ¿El HTML viene del shell + DATA (marcador presente, app shell intacta)?
 
 ## Paso 7 — Abrir
-Ejecutá `open dashboard.html` (Mac) o `xdg-open dashboard.html` (Linux).
 
-## Paso 8 — Reportar
-Contale al usuario, en lenguaje simple: cuántos productos encontraste (y cuáles son herramientas
-internas), el goal de cada uno, cuántas tareas/pendientes hay por producto, las tecnologías, los
-riesgos más importantes (con un "esto conviene arreglarlo bien antes de crecer"), y qué tanto se
-está gastando en tokens si hay datos. Cerralo invitándolo a abrir el dashboard para explorar de
-lo macro a lo micro.
+```bash
+open dashboard.html          # macOS
+xdg-open dashboard.html      # Linux
+```
+
+## Paso 8 — Reportar al usuario
+
+En lenguaje simple: cuántos productos (y qué es herramienta interna), goal de cada uno, pendientes
+por producto, techs, riesgos más importantes con un "conviene arreglarlo bien antes de crecer", y
+tokens si hubo datos. Invitá a explorar el dashboard de lo macro a lo micro.
+
+---
+
+## Notas para contribuidores del repo entiendo
+
+- Evolucioná UI en `template/shell.html`, no en un dashboard ya generado.
+- Evolucioná el contrato en `schema/workspace.schema.json` + `scripts/validate.mjs`.
+- Ejemplo canónico: `examples/data/entiendo.workspace.json` → ensamblar a `examples/dashboard.html`.
+- Smoke test:
+
+```bash
+node scripts/validate.mjs examples/data/entiendo.workspace.json fixtures/minimal.workspace.json
+node scripts/assemble.mjs examples/data/entiendo.workspace.json -o examples/dashboard.html
+```

@@ -7,73 +7,65 @@ No es un dashboard genérico de datos: es una **capa de inteligencia visual** qu
 *"Mi carpeta tiene estos productos, cada uno hace esto, está en este estado, me cuesta estos
 tokens, y acá están mis riesgos — y cómo se arreglan bien."*
 
+## Arquitectura (template + DATA)
+
+```
+dashboard.html  =  template/shell.html  (fijo)  +  DATA JSON  (generado por /entiendo)
+```
+
+| Path | Rol |
+|------|-----|
+| `commands/entiendo.md` | Instrucciones del comando: explorar → modelar → validar → ensamblar |
+| `template/shell.html` | App shell fija (UI, CSS, JS). Marcador `/*__ENTIENDO_DATA__*/` |
+| `schema/workspace.schema.json` | Contrato del objeto DATA |
+| `scripts/validate.mjs` | Validación de negocio del DATA |
+| `scripts/assemble.mjs` | Inyecta DATA en el shell → HTML final |
+| `examples/data/*.json` | Modelos de ejemplo |
+| `examples/dashboard.html` | Ejemplo ensamblado (no editar a mano: reensamblar) |
+| `fixtures/` | Fixtures mínimos para smoke tests |
+
+**Regla:** la IA solo genera DATA. El shell se versiona en el repo; no se reescribe en cada corrida.
+
 ## El comando `/entiendo`
 
-Cuando se invoca desde cualquier carpeta:
-
-1. Recorre TODA la carpeta (sin abrir `node_modules`, `.git`, `dist`, `build`, etc.).
-2. **Detecta múltiples productos** y los separa de las **herramientas/agentes internos** y de la
-   infra/config. La información de cada producto NO se mezcla con la de los demás.
-3. Lee los archivos clave de cada producto: CLAUDE.md, README, manifests (package.json,
-   requirements.txt, pyproject.toml…), puntos de entrada, `/commands`, `/agents`, `/prompts`,
-   `/skills`, configs de MCP, docs y ADRs.
-4. Construye un modelo del workspace, separado por producto, con todas las dimensiones (abajo).
-5. Genera un `dashboard.html` autocontenido (sin dependencias, doble clic) y lo abre en el browser.
+1. Recorre TODA la carpeta (sin `node_modules`, `.git`, `dist`, `build`, etc.).
+2. Detecta **múltiples productos** vs herramientas internas vs infra (sin mezclar info).
+3. Lee archivos clave y construye un **DATA** conforme al schema.
+4. Valida (IDs, edges, riesgos graves, tokens honestos).
+5. Ensambla `dashboard.html` = shell + DATA y lo abre en el browser.
 
 ## Qué entiende de cada producto
 
-- **Goal** (1 frase, como lo diría el dueño) y propósito.
-- **Piezas**: servicios y agentes, qué hace cada uno y cómo se conectan (el pipeline).
-- **Estado**: qué está listo / a medias / falta.
-- **Tareas**: TODOs y pendientes, **separados por producto** (nunca mezclados).
-- **Tecnologías**: el stack de cada producto.
-- **Decisiones** tomadas (inferidas de docs, ADRs, commits).
-- **Código muerto / que no sirve**: stubs, funciones vacías, huérfanos (marcado como "candidato").
-- **Consumo de tokens**: parseando los logs de sesión de Claude Code
-  (`~/.claude/projects/<carpeta>/*.jsonl`); marca dónde se gastó de más. Best-effort con
-  degradación elegante si no hay datos.
-- **Riesgos** de seguridad y de escala, cada uno con su **best practice**: qué pasa, por qué
-  importa al crecer, cómo se hace bien, y links de contexto.
+- **Goal** (1 frase del dueño) y propósito.
+- **Piezas** (nodos + edges): pipeline legible.
+- **Estado** listo / a medias / falta.
+- **Tareas** por producto (nunca mezcladas).
+- **Tecnologías**, **decisiones**, **código muerto** (candidato).
+- **Tokens** desde logs de Claude Code (best-effort; si no hay → `null`).
+- **Riesgos** con best practice: qué pasa → por qué importa → cómo se hace bien → links.
 
-## Las 6 vistas del dashboard (coordinadas, macro → micro)
+## Las vistas del dashboard (shell)
 
-Seleccionar un producto o nodo en una vista filtra las demás (overview → zoom → detalle).
-
-1. **📊 Cabecera ejecutiva** — el workspace de un vistazo.
-2. **🗺️ Mapa** (estilo n8n/LangGraph) — productos → servicios/agentes y sus conexiones; zoomeable.
-3. **📋 Tablero** (estilo Trello) — tareas en Falta / A medias / Listo, con un carril por producto.
-4. **🔍 Detalle** — al clickear un nodo: visión, archivos, tech, decisiones, tokens, salud, riesgos.
-5. **⚠️ Riesgos & Best Practices** — el corazón educativo: enseña a arreglar bien, no asusta.
-6. **💸 Costo de tokens** — dónde se quemaron y las "malas decisiones caras".
+1. **Mapa** — lienzo de nodos (pan/zoom/drill-in).
+2. **Tareas** — Trello con carril por producto.
+3. **Riesgos & Best Practices** — corazón educativo.
+4. **Costos (tokens)** — o estado vacío amable.
+5. **Drawer de detalle** + **chat dock** (respuestas desde DATA embebido).
 
 ## Principios de diseño (no negociables)
 
-- **Usuario no técnico**: cero jerga; todo término técnico se traduce a su función en el mundo real.
-- **Instructional design**: ante un riesgo grave → "Qué pasa → Por qué importa (al crecer) → Cómo
-  se hace bien → links". Enseñar, no asustar.
-- UX fundamentada en heurísticas de Nielsen, diseño centrado en el usuario, diseño de interacción
-  y arquitectura de la información (overview-first de Shneiderman, progressive disclosure, vistas
-  coordinadas).
-- Dark mode por defecto, colores semánticos con ícono+texto, accesibilidad AA, `prefers-reduced-motion`.
+- Usuario no técnico; instructional design ante riesgos.
+- Dark mode por defecto, AA, `prefers-reduced-motion`.
+- UX: Nielsen, UCD, overview-first de Shneiderman, progressive disclosure.
 
-## Capa UX lista para bidireccionalidad (Fase 2)
+## Fase 2 (bidireccional)
 
-El dashboard ya trae los controles para operar el proyecto, diseñados para "encenderse" después:
+Botones y chat ya están en el shell en modo "te muestro cómo". Fase 2: puente local + Agent SDK.
+Ver `docs/roadmap.md`.
 
-- **Botones de acción** en lenguaje simple ("Arreglar esto", "Ajustar esto", "Explicámelo").
-- **Chat dock cross-pantalla** que conoce el contexto de lo que estás mirando.
+## Desarrollo local
 
-**En la v1 (lectura) estos controles EDUCAN**: abren la best practice + pasos + links y responden
-desde el modelo embebido. No ejecutan.
-
-**Fase 2 (bidireccional, ya diseñada):** un puente local en Node + el **Claude Agent SDK**
-(`query()` + `canUseTool` con gate de confirmación por diff, WebSocket para streaming en vivo) hace
-que esos mismos botones y el chat **ejecuten de verdad** sobre el código (resolver TODO, agregar
-tests, explicar, refactorizar). Auth por créditos de suscripción Agent SDK (disp. 15-jun-2026) con
-fallback a `ANTHROPIC_API_KEY`. Seguridad: localhost-only, token de sesión, sin auto-edición,
-límite de gasto por acción.
-
-## Estructura
-
-- `~/.claude/commands/entiendo.md` — el comando generador (las instrucciones de cómo construir el
-  dashboard). Es el entregable central; el `dashboard.html` se produce al ejecutarlo en cada carpeta.
+```bash
+node scripts/validate.mjs examples/data/entiendo.workspace.json fixtures/minimal.workspace.json
+node scripts/assemble.mjs examples/data/entiendo.workspace.json -o examples/dashboard.html
+```
